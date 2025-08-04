@@ -54,7 +54,7 @@ export default function ContactsList({ onSelectContact, selectedContactId }: Con
     }
   };
 
-  const formatLastContact = (updatedAt: string) => {
+  const formatLastContact = (updatedAt: string | Date) => {
     const date = new Date(updatedAt);
     const now = new Date();
     const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
