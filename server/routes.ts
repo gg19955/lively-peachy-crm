@@ -7,6 +7,18 @@ import { ObjectPermission } from "./objectAcl";
 import { insertContactSchema, insertInteractionSchema, insertLeadSchema } from "@shared/schema";
 import { z } from "zod";
 
+// Utility function to extract spreadsheet ID from URL
+function extractSpreadsheetId(input: string): string {
+  if (!input.includes('docs.google.com')) {
+    return input;
+  }
+  const match = input.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+  if (match && match[1]) {
+    return match[1];
+  }
+  throw new Error('Invalid Google Sheets URL or ID format');
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware - temporarily disabled for testing
   // await setupAuth(app);
@@ -393,7 +405,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { spreadsheetId, contactsSheetName, leadsSheetName } = req.body;
       
       const service = new GoogleSheetsService({
-        spreadsheetId,
+        spreadsheetId: extractSpreadsheetId(spreadsheetId),
         contactsSheetName: contactsSheetName || 'Contacts',
         leadsSheetName: leadsSheetName || 'Leads'
       });
@@ -415,7 +427,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { spreadsheetId, contactsSheetName, leadsSheetName } = req.body;
       
       const service = new GoogleSheetsService({
-        spreadsheetId,
+        spreadsheetId: extractSpreadsheetId(spreadsheetId),
         contactsSheetName: contactsSheetName || 'Contacts',
         leadsSheetName: leadsSheetName || 'Leads'
       });
@@ -437,7 +449,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { spreadsheetId, sheetName } = req.body;
       
       const service = new GoogleSheetsService({
-        spreadsheetId,
+        spreadsheetId: extractSpreadsheetId(spreadsheetId),
         contactsSheetName: sheetName || 'Contacts',
         leadsSheetName: 'Leads'
       });
@@ -459,7 +471,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { spreadsheetId, sheetName } = req.body;
       
       const service = new GoogleSheetsService({
-        spreadsheetId,
+        spreadsheetId: extractSpreadsheetId(spreadsheetId),
         contactsSheetName: 'Contacts',
         leadsSheetName: sheetName || 'Leads'
       });
@@ -481,7 +493,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { spreadsheetId, sheetName } = req.body;
       
       const service = new GoogleSheetsService({
-        spreadsheetId,
+        spreadsheetId: extractSpreadsheetId(spreadsheetId),
         contactsSheetName: sheetName || 'Contacts',
         leadsSheetName: 'Leads'
       });
@@ -503,7 +515,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { spreadsheetId, sheetName } = req.body;
       
       const service = new GoogleSheetsService({
-        spreadsheetId,
+        spreadsheetId: extractSpreadsheetId(spreadsheetId),
         contactsSheetName: 'Contacts',
         leadsSheetName: sheetName || 'Leads'
       });

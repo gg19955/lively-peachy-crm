@@ -9,11 +9,30 @@ interface GoogleSheetsConfig {
 }
 
 export class GoogleSheetsService {
+  // Extract spreadsheet ID from URL if needed
+  private extractSpreadsheetId(input: string): string {
+    // If it's already just an ID, return as-is
+    if (!input.includes('docs.google.com')) {
+      return input;
+    }
+    
+    // Extract ID from URL
+    const match = input.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+    if (match && match[1]) {
+      return match[1];
+    }
+    
+    throw new Error('Invalid Google Sheets URL or ID format');
+  }
   private sheets: any;
   private config: GoogleSheetsConfig;
 
   constructor(config: GoogleSheetsConfig) {
-    this.config = config;
+    // Extract spreadsheet ID from URL if needed
+    this.config = {
+      ...config,
+      spreadsheetId: this.extractSpreadsheetId(config.spreadsheetId)
+    };
     
     // Format the private key properly by handling different escape patterns
     let privateKey = process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY || '';
