@@ -271,6 +271,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const leadData = insertLeadSchema.partial().parse(req.body);
       const lead = await storage.updateLead(req.params.id, leadData);
+      
+      // Try to sync to Google Sheets after update
+      try {
+        const { GoogleSheetsService } = await import('./googleSheetsService');
+        if (process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY && process.env.GOOGLE_SHEETS_ID) {
+          console.log("Syncing updated lead to Google Sheets...");
+          const googleSheetsService = new GoogleSheetsService({
+            spreadsheetId: process.env.GOOGLE_SHEETS_ID,
+            contactsSheetName: 'Contacts',
+            leadsSheetName: 'Leads'
+          });
+          await googleSheetsService.exportLeads();
+          console.log("Updated lead synced to Google Sheets successfully");
+        }
+      } catch (syncError) {
+        console.error("Failed to sync updated lead to Google Sheets:", syncError);
+      }
+      
       res.json(lead);
     } catch (error) {
       console.error("Error updating lead:", error);

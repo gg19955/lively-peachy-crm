@@ -33,9 +33,7 @@ interface EditLeadModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const editLeadSchema = insertLeadSchema.partial().extend({
-  id: insertLeadSchema.shape.id,
-});
+const editLeadSchema = insertLeadSchema.partial();
 
 export default function EditLeadModal({ lead, open, onOpenChange }: EditLeadModalProps) {
   const { toast } = useToast();
@@ -104,9 +102,10 @@ export default function EditLeadModal({ lead, open, onOpenChange }: EditLeadModa
         }, 500);
         return;
       }
+      console.error("Lead update error:", error);
       toast({
         title: "Error",
-        description: "Failed to update lead",
+        description: error.message || "Failed to update lead",
         variant: "destructive",
       });
     },
