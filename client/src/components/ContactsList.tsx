@@ -35,9 +35,12 @@ export default function ContactsList({ onSelectContact, selectedContactId }: Con
     },
   });
 
-  const filteredContacts = contacts?.filter((contact: Contact) => 
-    contactType === "all" || contact.contactType === contactType
-  ) || [];
+  const filteredContacts = contacts
+    ?.filter((contact: Contact) => 
+      contactType === "all" || contact.type === contactType
+    )
+    ?.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+    ?.slice(0, 5) || [];
 
   const getStatusColor = (status: string) => {
     switch (status) {
