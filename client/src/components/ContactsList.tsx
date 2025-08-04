@@ -18,28 +18,15 @@ export default function ContactsList({ onSelectContact, selectedContactId }: Con
   const { toast } = useToast();
   const [contactType, setContactType] = useState<string>("all");
   
-  const { data: contacts, isLoading } = useQuery({
+  const { data: contacts, isLoading } = useQuery<Contact[]>({
     queryKey: ["/api/contacts"],
-    onError: (error: Error) => {
-      if (isUnauthorizedError(error)) {
-        toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
-        return;
-      }
-    },
   });
 
   const filteredContacts = contacts
     ?.filter((contact: Contact) => 
       contactType === "all" || contact.type === contactType
     )
-    ?.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+    ?.sort((a: Contact, b: Contact) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
     ?.slice(0, 5) || [];
 
   const getStatusColor = (status: string) => {

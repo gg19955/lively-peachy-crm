@@ -33,8 +33,10 @@ export default function AddInteractionModal({ open, onOpenChange, contactId }: A
 
   const createInteractionMutation = useMutation({
     mutationFn: async (data: InsertInteraction) => {
-      const response = await apiRequest("POST", "/api/interactions", data);
-      return response.json();
+      return await apiRequest("/api/interactions", {
+        method: "POST",
+        body: data,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/contacts", contactId, "interactions"] });
@@ -71,9 +73,12 @@ export default function AddInteractionModal({ open, onOpenChange, contactId }: A
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md" aria-describedby="add-interaction-description">
         <DialogHeader>
           <DialogTitle>Add Interaction</DialogTitle>
+          <p id="add-interaction-description" className="text-sm text-gray-600">
+            Record a new interaction with this contact.
+          </p>
         </DialogHeader>
         
         <Form {...form}>
