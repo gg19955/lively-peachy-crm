@@ -43,10 +43,11 @@ export const contacts = pgTable("contacts", {
   phone: varchar("phone"),
   company: varchar("company"),
   address: varchar("address"),
-  contactType: varchar("contact_type"), // tenant, landlord, vendor, prospect
-  status: varchar("status").default("pending"), // active, inactive, pending
+  type: varchar("type").default("prospect"), // tenant, landlord, vendor, prospect
+  status: varchar("status").default("active"), // active, inactive
   notes: text("notes"),
   airtableId: varchar("airtable_id").unique(),
+  googleSheetsId: varchar("google_sheets_id").unique(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
   createdBy: varchar("created_by").references(() => users.id),
@@ -67,15 +68,16 @@ export const leads = pgTable("leads", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   propertyAddress: varchar("property_address").notNull(),
   propertyType: varchar("property_type").default("residential"), // residential, commercial, industrial, land
-  leadStage: varchar("lead_stage").default("new"), // new, contacted, qualified, proposal, negotiation, closed, lost
-  priority: varchar("priority").default("medium"), // low, medium, high, urgent
+  stage: varchar("stage").default("inquiry"), // inquiry, viewing, negotiation, closed
+  priority: varchar("priority").default("medium"), // low, medium, high
   contactName: varchar("contact_name"),
   contactEmail: varchar("contact_email"),
   contactPhone: varchar("contact_phone"),
-  budget: varchar("budget"),
+  estimatedValue: integer("estimated_value"),
   notes: text("notes"),
   attachments: text("attachments").array(), // Array of file paths
   airtableId: varchar("airtable_id").unique(),
+  googleSheetsId: varchar("google_sheets_id").unique(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
   createdBy: varchar("created_by").references(() => users.id),

@@ -9,7 +9,7 @@ import Landing from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
 import ContactsPage from "@/pages/contacts";
 import LeadsPage from "@/pages/leads";
-import AirtableSyncPage from "@/pages/airtable-sync";
+import GoogleSheetsPage from "@/pages/google-sheets";
 
 function Router() {
   // Temporarily bypass authentication for testing
@@ -18,7 +18,7 @@ function Router() {
       <Route path="/" component={Dashboard} />
       <Route path="/contacts" component={ContactsPage} />
       <Route path="/leads" component={LeadsPage} />
-      <Route path="/airtable-sync" component={AirtableSyncPage} />
+      <Route path="/google-sheets" component={GoogleSheetsPage} />
       <Route component={NotFound} />
     </Switch>
   );
