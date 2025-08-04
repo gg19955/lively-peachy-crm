@@ -1,23 +1,31 @@
+import { useState, useEffect } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useToast } from "@/hooks/use-toast";
+import { insertLeadSchema, type Lead } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
-import { Lead, insertLeadSchema } from "@shared/schema";
-import { z } from "zod";
-
-const updateLeadSchema = insertLeadSchema.partial().extend({
-  id: z.string(),
-  timeframe: z.string().optional(),
-});
-
-type UpdateLeadInput = z.infer<typeof updateLeadSchema>;
+import { useToast } from "@/hooks/use-toast";
+import { isUnauthorizedError } from "@/lib/authUtils";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 
 interface EditLeadModalProps {
   lead: Lead | null;
@@ -25,250 +33,288 @@ interface EditLeadModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
+const editLeadSchema = insertLeadSchema.partial().extend({
+  id: insertLeadSchema.shape.id,
+});
+
 export default function EditLeadModal({ lead, open, onOpenChange }: EditLeadModalProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const form = useForm<UpdateLeadInput>({
-    resolver: zodResolver(updateLeadSchema),
-    values: lead ? {
-      id: lead.id,
-      propertyAddress: lead.propertyAddress || "",
-      contactName: lead.contactName || "",
-      contactEmail: lead.contactEmail || "",
-      contactPhone: lead.contactPhone || "",
-      stage: lead.stage,
-      priority: lead.priority,
-      timeframe: lead.timeframe || "",
-      notes: lead.notes || "",
-    } : undefined,
+  const form = useForm({
+    resolver: zodResolver(editLeadSchema),
+    defaultValues: {
+      id: "",
+      stage: "inquiry",
+      timeframe: "within_1_month",
+      propertyAddress: "",
+      contactName: "",
+      contactEmail: "",
+      contactPhone: "",
+      priority: "medium",
+      notes: "",
+    },
   });
 
+  // Update form values when lead changes
+  useEffect(() => {
+    if (lead) {
+      form.reset({
+        id: lead.id,
+        stage: lead.stage || "inquiry",
+        timeframe: lead.timeframe || "within_1_month",
+        propertyAddress: lead.propertyAddress || "",
+        contactName: lead.contactName || "",
+        contactEmail: lead.contactEmail || "",
+        contactPhone: lead.contactPhone || "",
+        priority: lead.priority || "medium",
+        notes: lead.notes || "",
+      });
+    }
+  }, [lead, form]);
+
   const updateLeadMutation = useMutation({
-    mutationFn: (data: UpdateLeadInput) => {
-      // Calculate reminder date based on timeframe
-      let reminderDate = null;
-      if (data.timeframe) {
-        const now = new Date();
-        switch (data.timeframe) {
-          case 'less_than_3_months':
-            reminderDate = new Date(now.getTime() + (2.5 * 30 * 24 * 60 * 60 * 1000)); // 2.5 months
-            break;
-          case '3_to_6_months':
-            reminderDate = new Date(now.getTime() + (5 * 30 * 24 * 60 * 60 * 1000)); // 5 months
-            break;
-          case '6_to_12_months':
-            reminderDate = new Date(now.getTime() + (10 * 30 * 24 * 60 * 60 * 1000)); // 10 months
-            break;
-          case 'select_date':
-            // User will need to set a specific date - for now, default to 1 month
-            reminderDate = new Date(now.getTime() + (30 * 24 * 60 * 60 * 1000));
-            break;
-        }
-      }
-      
-      return apiRequest({
-        url: `/api/leads/${data.id}`,
-        method: "PATCH",
-        body: { ...data, reminderDate },
+    mutationFn: async (data: any) => {
+      if (!lead?.id) throw new Error("No lead ID provided");
+      return await apiRequest(`/api/leads/${lead.id}`, {
+        method: "PUT",
+        body: data,
       });
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/leads/by-stage"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
       toast({
         title: "Success",
         description: "Lead updated successfully",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/leads/by-stage"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
       onOpenChange(false);
       form.reset();
     },
     onError: (error: Error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
       toast({
         title: "Error",
-        description: error.message,
+        description: "Failed to update lead",
         variant: "destructive",
       });
     },
   });
 
-  const deleteLeadMutation = useMutation({
-    mutationFn: (leadId: string) => apiRequest({
-      url: `/api/leads/${leadId}`,
-      method: "DELETE",
-    }),
-    onSuccess: () => {
-      toast({
-        title: "Success",
-        description: "Lead deleted successfully",
-      });
-      queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/leads/by-stage"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
-      onOpenChange(false);
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const onSubmit = form.handleSubmit((data) => {
+  const onSubmit = (data: any) => {
     updateLeadMutation.mutate(data);
-  });
+  };
 
-  const handleDelete = () => {
-    if (lead && confirm("Are you sure you want to delete this lead?")) {
-      deleteLeadMutation.mutate(lead.id);
-    }
+  const handleClose = () => {
+    onOpenChange(false);
+    form.reset();
   };
 
   if (!lead) return null;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md" data-testid="modal-edit-lead">
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-[600px]" data-testid="modal-edit-lead">
         <DialogHeader>
           <DialogTitle>Edit Lead</DialogTitle>
         </DialogHeader>
-        
-        <form onSubmit={onSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="propertyAddress">Property Address</Label>
-            <Input
-              id="propertyAddress"
-              {...form.register("propertyAddress")}
-              placeholder="Enter property address"
-              data-testid="input-property-address"
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="contactName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Contact Name</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter contact name"
+                        {...field}
+                        data-testid="input-contact-name"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="contactEmail"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Contact Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        placeholder="Enter contact email"
+                        {...field}
+                        data-testid="input-contact-email"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="contactPhone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Contact Phone</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter contact phone"
+                        {...field}
+                        data-testid="input-contact-phone"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="propertyAddress"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Property Address</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter property address"
+                        {...field}
+                        data-testid="input-property-address"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="stage"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Stage</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      data-testid="select-stage"
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select stage" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="inquiry">Inquiry</SelectItem>
+                        <SelectItem value="meeting_booked">Meeting Booked</SelectItem>
+                        <SelectItem value="signed">Signed</SelectItem>
+                        <SelectItem value="closed">Closed</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="timeframe"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Timeframe</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      data-testid="select-timeframe"
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select timeframe" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="immediately">Immediately</SelectItem>
+                        <SelectItem value="within_1_month">Within 1 Month</SelectItem>
+                        <SelectItem value="within_3_months">Within 3 Months</SelectItem>
+                        <SelectItem value="within_6_months">Within 6 Months</SelectItem>
+                        <SelectItem value="over_6_months">Over 6 Months</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="priority"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Priority</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      data-testid="select-priority"
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select priority" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="low">Low</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="high">High</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="notes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Notes</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Enter any additional notes"
+                      className="min-h-[100px]"
+                      {...field}
+                      data-testid="textarea-notes"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            {form.formState.errors.propertyAddress && (
-              <p className="text-sm text-red-600">
-                {form.formState.errors.propertyAddress.message}
-              </p>
-            )}
-          </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="contactName">Contact Name</Label>
-              <Input
-                id="contactName"
-                {...form.register("contactName")}
-                placeholder="Contact name"
-                data-testid="input-contact-name"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="contactEmail">Contact Email</Label>
-              <Input
-                id="contactEmail"
-                type="email"
-                {...form.register("contactEmail")}
-                placeholder="contact@example.com"
-                data-testid="input-contact-email"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="contactPhone">Contact Phone</Label>
-              <Input
-                id="contactPhone"
-                {...form.register("contactPhone")}
-                placeholder="Phone number"
-                data-testid="input-contact-phone"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="timeframe">Timeframe</Label>
-              <Select
-                value={form.watch("timeframe") || ""}
-                onValueChange={(value) => form.setValue("timeframe", value)}
-              >
-                <SelectTrigger data-testid="select-timeframe">
-                  <SelectValue placeholder="Select timeframe" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="select_date">Select date</SelectItem>
-                  <SelectItem value="less_than_3_months">Less than 3 months</SelectItem>
-                  <SelectItem value="3_to_6_months">3-6 Months</SelectItem>
-                  <SelectItem value="6_to_12_months">6-12 Months</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="stage">Stage</Label>
-              <Select
-                value={form.watch("stage") || ""}
-                onValueChange={(value) => form.setValue("stage", value as any)}
-              >
-                <SelectTrigger data-testid="select-stage">
-                  <SelectValue placeholder="Select stage" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="inquiry">New Leads</SelectItem>
-                  <SelectItem value="meeting_booked">Meeting Booked</SelectItem>
-                  <SelectItem value="signed">Signed</SelectItem>
-                  <SelectItem value="closed">Closed</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="priority">Priority</Label>
-              <Select
-                value={form.watch("priority") || ""}
-                onValueChange={(value) => form.setValue("priority", value as any)}
-              >
-                <SelectTrigger data-testid="select-priority">
-                  <SelectValue placeholder="Select priority" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="low">Low</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="notes">Notes</Label>
-            <Textarea
-              id="notes"
-              {...form.register("notes")}
-              placeholder="Additional notes..."
-              rows={3}
-              data-testid="textarea-notes"
-            />
-          </div>
-
-          <div className="flex justify-between pt-4">
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={deleteLeadMutation.isPending}
-              data-testid="button-delete-lead"
-            >
-              {deleteLeadMutation.isPending ? "Deleting..." : "Delete Lead"}
-            </Button>
-            
-            <div className="flex gap-2">
+            <div className="flex justify-end space-x-2">
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => onOpenChange(false)}
+                onClick={handleClose}
                 data-testid="button-cancel"
               >
                 Cancel
@@ -276,13 +322,13 @@ export default function EditLeadModal({ lead, open, onOpenChange }: EditLeadModa
               <Button
                 type="submit"
                 disabled={updateLeadMutation.isPending}
-                data-testid="button-save-lead"
+                data-testid="button-save"
               >
                 {updateLeadMutation.isPending ? "Saving..." : "Save Changes"}
               </Button>
             </div>
-          </div>
-        </form>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

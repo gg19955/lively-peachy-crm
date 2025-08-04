@@ -9,7 +9,7 @@ import { isUnauthorizedError } from "@/lib/authUtils";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import AddLeadModal from "./AddLeadModal";
-// import EditLeadModal from "./EditLeadModal"; // TODO: Create EditLeadModal component
+import EditLeadModal from "./EditLeadModal";
 
 const stageColors = {
   inquiry: "bg-blue-50 border-blue-200 text-blue-900",
@@ -259,7 +259,11 @@ export default function LeadPipeline() {
         onOpenChange={setShowAddLead}
       />
       
-      {/* TODO: Implement EditLeadModal component */}
+      <EditLeadModal
+        lead={editingLead}
+        open={!!editingLead}
+        onOpenChange={(open: boolean) => !open && setEditingLead(null)}
+      />
     </>
   );
 }
