@@ -2,6 +2,12 @@
 
 PropertyCRM is a full-stack web application for property management and customer relationship management. The application enables property managers to track contacts, manage leads, and handle interactions with clients including tenants, landlords, vendors, and prospects. Built with modern web technologies, it features a React frontend with TypeScript, an Express.js backend, PostgreSQL database integration, and Google Sheets synchronization capabilities.
 
+## Recent Changes (August 4, 2025)
+- ✅ **Google Sheets Integration Completed**: Full bidirectional sync working with service account authentication
+- ✅ **Database Issues Resolved**: Fixed all API endpoints and database query errors
+- ✅ **Core CRM Functionality**: Contact and lead management fully operational
+- ✅ **Service Account Setup**: Successfully configured with managehub@property-management-dash.iam.gserviceaccount.com
+
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
