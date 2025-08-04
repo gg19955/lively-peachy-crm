@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus } from "lucide-react";
+import { Plus, Activity } from "lucide-react";
 import { useState, DragEvent } from "react";
 import { Lead } from "@shared/schema";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -29,7 +29,11 @@ const stageLabels = {
   closed: "Closed",
 };
 
-export default function LeadPipeline() {
+interface LeadPipelineProps {
+  onToggleFeed?: () => void;
+}
+
+export default function LeadPipeline({ onToggleFeed }: LeadPipelineProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [showAddLead, setShowAddLead] = useState(false);
@@ -158,7 +162,19 @@ export default function LeadPipeline() {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>Property Leads</CardTitle>
+            <div className="flex items-center gap-4">
+              <CardTitle>Property Leads</CardTitle>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onToggleFeed}
+                data-testid="button-toggle-feed"
+                className="flex items-center gap-2"
+              >
+                <Activity className="w-4 h-4" />
+                Lead Feed
+              </Button>
+            </div>
             <Button 
               onClick={() => setShowAddLead(true)}
               data-testid="button-add-lead"
