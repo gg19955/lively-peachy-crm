@@ -13,14 +13,18 @@ import EditLeadModal from "./EditLeadModal";
 
 const stageColors = {
   inquiry: "bg-blue-50 border-blue-200 text-blue-900",
-  meeting_booked: "bg-yellow-50 border-yellow-200 text-yellow-900", 
+  meeting_booked: "bg-yellow-50 border-yellow-200 text-yellow-900",
+  proposal_sent: "bg-orange-50 border-orange-200 text-orange-900",
+  contract_sent: "bg-purple-50 border-purple-200 text-purple-900", 
   signed: "bg-green-50 border-green-200 text-green-900",
   closed: "bg-gray-50 border-gray-200 text-gray-900",
 };
 
 const stageLabels = {
   inquiry: "New Leads",
-  meeting_booked: "Meeting Booked", 
+  meeting_booked: "Meeting Booked",
+  proposal_sent: "Proposal Sent",
+  contract_sent: "Contract Sent", 
   signed: "Signed",
   closed: "Closed",
 };
@@ -82,7 +86,7 @@ export default function LeadPipeline() {
     return leadsByStage?.find((item: any) => item.stage === stage)?.count || 0;
   };
 
-  const mainStages = ["inquiry", "meeting_booked", "signed", "closed"];
+  const mainStages = ["inquiry", "meeting_booked", "proposal_sent", "contract_sent", "signed", "closed"];
 
   // Drag and Drop handlers
   const handleDragStart = (e: DragEvent<HTMLDivElement>, lead: Lead) => {
@@ -131,30 +135,18 @@ export default function LeadPipeline() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
-              <h4 className="text-sm font-medium text-gray-900 mb-4">Lead Pipeline</h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {[...Array(3)].map((_, i) => (
-                  <div key={i} className="bg-gray-50 rounded-lg p-4 border border-gray-200 animate-pulse">
-                    <div className="h-6 bg-gray-200 rounded mb-3"></div>
-                    <div className="space-y-3">
-                      {[...Array(2)].map((_, j) => (
-                        <div key={j} className="h-16 bg-gray-200 rounded"></div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
+          <h4 className="text-sm font-medium text-gray-900 mb-4">Lead Pipeline</h4>
+          <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="bg-gray-50 rounded-lg p-4 border border-gray-200 animate-pulse">
+                <div className="h-6 bg-gray-200 rounded mb-3"></div>
+                <div className="space-y-3">
+                  {[...Array(2)].map((_, j) => (
+                    <div key={j} className="h-16 bg-gray-200 rounded"></div>
+                  ))}
+                </div>
               </div>
-            </div>
-            <div>
-              <div className="h-6 bg-gray-200 rounded mb-4"></div>
-              <div className="space-y-3">
-                {[...Array(3)].map((_, i) => (
-                  <div key={i} className="h-16 bg-gray-200 rounded"></div>
-                ))}
-              </div>
-            </div>
+            ))}
           </div>
         </CardContent>
       </Card>
@@ -178,11 +170,8 @@ export default function LeadPipeline() {
         </CardHeader>
         
         <CardContent>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Lead Pipeline */}
-            <div className="lg:col-span-2">
-              <h4 className="text-sm font-medium text-gray-900 mb-4">Lead Pipeline</h4>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <h4 className="text-sm font-medium text-gray-900 mb-4">Lead Pipeline</h4>
+          <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
                 {mainStages.map((stage) => {
                   const stageLeads = getLeadsByStage(stage);
                   const count = getStageCount(stage);
@@ -247,9 +236,6 @@ export default function LeadPipeline() {
                     </div>
                   );
                 })}
-              </div>
-            </div>
-
           </div>
         </CardContent>
       </Card>

@@ -30,6 +30,8 @@ interface ActivityItem {
 const stageDisplayNames = {
   inquiry: 'Inquiry',
   meeting_booked: 'Meeting Booked',
+  proposal_sent: 'Proposal Sent',
+  contract_sent: 'Contract Sent',
   signed: 'Contract Signed',
   closed: 'Closed',
 };

@@ -19,6 +19,8 @@ import EditLeadModal from "./EditLeadModal";
 const stageBadgeColors = {
   inquiry: "bg-blue-100 text-blue-800 border-blue-200",
   meeting_booked: "bg-yellow-100 text-yellow-800 border-yellow-200",
+  proposal_sent: "bg-orange-100 text-orange-800 border-orange-200",
+  contract_sent: "bg-purple-100 text-purple-800 border-purple-200",
   signed: "bg-green-100 text-green-800 border-green-200",
   closed: "bg-gray-100 text-gray-800 border-gray-200",
 };
@@ -47,6 +49,8 @@ export default function LeadListView() {
     switch (stage) {
       case 'inquiry': return 'Inquiry';
       case 'meeting_booked': return 'Meeting Booked';
+      case 'proposal_sent': return 'Proposal Sent';
+      case 'contract_sent': return 'Contract Sent';
       case 'signed': return 'Signed';
       case 'closed': return 'Closed';
       default: return stage;
