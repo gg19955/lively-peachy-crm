@@ -13,6 +13,9 @@ PropertyCRM is a full-stack web application for property management and customer
 - ✅ **Google OAuth Integration**: Dual authentication system supporting both Google OAuth and Replit Auth
 - ✅ **Dark Mode Implementation Completed**: Full dark theme support across all pages and components
 - ✅ **Landing Page Optimization**: Removed PropertyCRM logo text and enhanced dark mode styling
+- ✅ **Mobile Lead Management Optimization**: Enhanced "Add New Lead" button with full-width mobile layout
+- ✅ **Mobile Activity Feed Fix**: Optimized "recent activities" placeholder with proper responsive stacking
+- ✅ **Mobile Leads List Fix**: Enhanced "0 total leads" placeholder with mobile-friendly layout and spacing
 
 # User Preferences
 
