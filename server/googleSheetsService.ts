@@ -64,7 +64,7 @@ export class GoogleSheetsService {
             type: (row[3] as any) || 'prospect',
             status: (row[4] as any) || 'active',
             address: row[5] || '',
-            notes: row[6] || null,
+            notes: row[6] || '',
             googleSheetsId: row[7] || null, // Store Google Sheets row ID if available
           };
 
@@ -139,7 +139,7 @@ export class GoogleSheetsService {
             stage: (row[4] as any) || 'inquiry',
             priority: (row[5] as any) || 'medium',
             estimatedValue: row[6] ? parseFloat(row[6]) : null,
-            notes: row[7] || null,
+            notes: row[7] || '',
             googleSheetsId: row[8] || null, // Store Google Sheets row ID if available
           };
 
@@ -247,6 +247,13 @@ export class GoogleSheetsService {
         throw new Error('Google Service Account credentials not properly configured');
       }
       
+      // Try to access a simple range first to test permissions
+      const testResponse = await this.sheets.spreadsheets.values.get({
+        spreadsheetId: this.config.spreadsheetId,
+        range: 'A1:A1', // Just get one cell to test access
+      });
+      
+      // If we get here, the API access works - now get sheet metadata
       const response = await this.sheets.spreadsheets.get({
         spreadsheetId: this.config.spreadsheetId,
       });
