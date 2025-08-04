@@ -15,7 +15,7 @@ import {
   type AirtableSyncLog,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, or, ilike } from "drizzle-orm";
+import { eq, desc, and, or, ilike, sql } from "drizzle-orm";
 
 export interface IStorage {
   // User operations (required for Replit Auth)
