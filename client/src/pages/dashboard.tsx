@@ -42,22 +42,33 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-gray-950">
-      <Sidebar />
+    <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-950 lg:flex-row">
+      <div className="hidden lg:block">
+        <Sidebar />
+      </div>
       
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header title="Contact Management" />
         
         <main className="flex-1 overflow-y-auto">
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             <StatsCards />
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
               <ContactsList 
                 onSelectContact={setSelectedContactId}
                 selectedContactId={selectedContactId}
               />
-              <ContactDetail contactId={selectedContactId} />
+              <div className="hidden xl:block">
+                <ContactDetail contactId={selectedContactId} />
+              </div>
+              
+              {/* Mobile contact detail modal or overlay would go here */}
+              {selectedContactId && (
+                <div className="xl:hidden">
+                  <ContactDetail contactId={selectedContactId} />
+                </div>
+              )}
             </div>
 
             <LeadPipeline onToggleFeed={() => setLocation("/leads?view=feed")} />

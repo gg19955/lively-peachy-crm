@@ -13,15 +13,15 @@ export default function StatsCards() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
         {[...Array(4)].map((_, i) => (
           <Card key={i} className="animate-pulse bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center">
-                <div className="p-2 bg-gray-200 dark:bg-gray-600 rounded-lg w-10 h-10"></div>
-                <div className="ml-4 flex-1">
-                  <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded mb-2"></div>
-                  <div className="h-6 bg-gray-200 dark:bg-gray-600 rounded"></div>
+                <div className="p-2 bg-gray-200 dark:bg-gray-600 rounded-lg w-8 h-8 sm:w-10 sm:h-10"></div>
+                <div className="ml-3 sm:ml-4 flex-1">
+                  <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-600 rounded mb-2"></div>
+                  <div className="h-5 sm:h-6 bg-gray-200 dark:bg-gray-600 rounded"></div>
                 </div>
               </div>
             </CardContent>
@@ -66,17 +66,17 @@ export default function StatsCards() {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
       {statsData.map((stat) => (
         <Card key={stat.title} className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm dark:shadow-lg">
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center">
               <div className={`p-2 rounded-lg ${colorClasses[stat.color]}`}>
-                <stat.icon className="w-6 h-6" />
+                <stat.icon className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-300">{stat.title}</p>
-                <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100" data-testid={`text-${stat.title.toLowerCase().replace(' ', '-')}`}>
+              <div className="ml-3 sm:ml-4">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300">{stat.title}</p>
+                <p className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-gray-100" data-testid={`text-${stat.title.toLowerCase().replace(' ', '-')}`}>
                   {stat.value.toLocaleString()}
                 </p>
               </div>

@@ -75,15 +75,15 @@ export default function ContactsList({ onSelectContact, selectedContactId }: Con
 
   return (
     <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between mb-4">
-          <CardTitle>Recent Contacts</CardTitle>
+      <CardHeader className="px-4 sm:px-6">
+        <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 mb-4">
+          <CardTitle className="text-lg sm:text-xl">Recent Contacts</CardTitle>
           <div className="flex items-center space-x-3">
             <Select value={contactType} onValueChange={(value) => {
               setContactType(value);
               setCurrentPage(0); // Reset to first page when filter changes
             }}>
-              <SelectTrigger className="w-32">
+              <SelectTrigger className="w-32 sm:w-40">
                 <SelectValue placeholder="All Types" />
               </SelectTrigger>
               <SelectContent>
@@ -97,7 +97,7 @@ export default function ContactsList({ onSelectContact, selectedContactId }: Con
                 <SelectItem value="property_owner">Property Owner</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" className="hidden sm:flex">
               <Filter className="w-4 h-4" />
             </Button>
           </div>
@@ -137,7 +137,62 @@ export default function ContactsList({ onSelectContact, selectedContactId }: Con
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto">
+            {/* Mobile-first responsive layout */}
+            <div className="block sm:hidden">
+              {/* Mobile card layout */}
+              <div className="space-y-3 px-4">
+                {filteredContacts.length === 0 ? (
+                  <div className="py-8 text-center text-gray-500 dark:text-gray-400">
+                    No contacts found
+                  </div>
+                ) : (
+                  filteredContacts.map((contact: Contact) => (
+                    <div
+                      key={contact.id}
+                      className={cn(
+                        "p-4 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer transition-colors",
+                        "hover:bg-gray-50 dark:hover:bg-gray-800",
+                        selectedContactId === contact.id && "ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/20"
+                      )}
+                      onClick={() => onSelectContact(contact.id)}
+                      data-testid={`contact-card-${contact.id}`}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center flex-shrink-0">
+                          <span className="text-blue-600 dark:text-blue-400 font-semibold text-sm">
+                            {contact.name.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                            {contact.name}
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                            {contact.email}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="mt-3 flex items-center justify-between">
+                        <div className="flex-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {contact.company || '-'}
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {formatLastContact(contact.updatedAt || contact.createdAt || new Date())}
+                          </p>
+                        </div>
+                        <span className={cn("px-2 py-1 text-xs rounded-full", getStatusColor(contact.status))}>
+                          {contact.status}
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+            
+            {/* Desktop table layout */}
+            <div className="hidden sm:block overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50 dark:bg-gray-800">
                   <tr>
@@ -218,21 +273,22 @@ export default function ContactsList({ onSelectContact, selectedContactId }: Con
               </table>
             </div>
             
-            <div className="px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-700 dark:text-gray-300">
+            <div className="px-3 sm:px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+              <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+                <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 text-center sm:text-left">
                   Showing {startIndex + 1}-{Math.min(startIndex + CONTACTS_PER_PAGE, allFilteredContacts.length)} of {allFilteredContacts.length} results
                 </p>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center justify-center space-x-2">
                   <Button 
                     variant="outline" 
                     size="sm" 
                     disabled={!canGoPrevious}
                     onClick={() => setCurrentPage(currentPage - 1)}
                     data-testid="button-previous-contacts"
+                    className="flex-1 sm:flex-none"
                   >
-                    <ChevronLeft className="w-4 h-4 mr-1" />
-                    Previous
+                    <ChevronLeft className="w-4 h-4 sm:mr-1" />
+                    <span className="hidden sm:inline">Previous</span>
                   </Button>
                   <Button 
                     variant="outline" 
@@ -240,9 +296,10 @@ export default function ContactsList({ onSelectContact, selectedContactId }: Con
                     disabled={!canGoNext}
                     onClick={() => setCurrentPage(currentPage + 1)}
                     data-testid="button-next-contacts"
+                    className="flex-1 sm:flex-none"
                   >
-                    Next
-                    <ChevronRight className="w-4 h-4 ml-1" />
+                    <span className="hidden sm:inline">Next</span>
+                    <ChevronRight className="w-4 h-4 sm:ml-1" />
                   </Button>
                 </div>
               </div>

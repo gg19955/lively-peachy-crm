@@ -169,13 +169,13 @@ export default function SearchWithAutocomplete({
       />
       
       {showSuggestions && suggestions.length > 0 && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-50 max-h-64 overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-50 max-h-48 sm:max-h-64 overflow-y-auto">
           {suggestions.map((suggestion, index) => (
             <div
               key={`${suggestion.type}-${suggestion.id}`}
               ref={el => suggestionRefs.current[index] = el}
               className={cn(
-                "px-4 py-3 cursor-pointer transition-colors",
+                "px-3 sm:px-4 py-2 sm:py-3 cursor-pointer transition-colors",
                 "hover:bg-gray-50 dark:hover:bg-gray-700",
                 selectedIndex === index && "bg-gray-100 dark:bg-gray-700"
               )}
@@ -194,7 +194,7 @@ export default function SearchWithAutocomplete({
                   )}
                 </div>
                 <span className={cn(
-                  "ml-2 px-2 py-1 text-xs rounded-full",
+                  "ml-2 px-2 py-1 text-xs rounded-full flex-shrink-0",
                   suggestion.type === 'contact' 
                     ? "bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400"
                     : "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400"
