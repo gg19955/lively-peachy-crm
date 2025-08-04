@@ -59,9 +59,32 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
   });
 
   // Search for existing contacts
-  const { data: contacts = [] } = useQuery<Contact[]>({
+  const { data: contacts = [], isError: contactSearchError } = useQuery<Contact[]>({
     queryKey: ["/api/contacts", { search: contactSearchTerm }],
     enabled: contactSearchTerm.length > 2,
+    retry: false,
+    queryFn: async ({ queryKey }) => {
+      try {
+        const searchParams = contactSearchTerm ? `?search=${encodeURIComponent(contactSearchTerm)}` : '';
+        const response = await fetch(`/api/contacts${searchParams}`, {
+          credentials: "include",
+        });
+        
+        if (response.status === 401) {
+          // Return empty array for unauthorized users instead of throwing
+          return [];
+        }
+        
+        if (!response.ok) {
+          throw new Error(`${response.status}: ${response.statusText}`);
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error("Contact search error:", error);
+        return [];
+      }
+    },
   });
 
   // Handle contact selection for autofill
@@ -147,7 +170,7 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
             {/* Contact Information */}
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h4 className="text-base font-medium text-gray-900">Contact Information</h4>
+                <h4 className="text-base font-medium text-gray-900 dark:text-white">Contact Information</h4>
                 <Popover open={contactSearchOpen} onOpenChange={setContactSearchOpen}>
                   <PopoverTrigger asChild>
                     <Button
@@ -170,7 +193,12 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                       />
                       <CommandList>
                         <CommandEmpty>
-                          {contactSearchTerm.length > 2 ? "No contacts found." : "Type to search contacts..."}
+                          {contactSearchError 
+                            ? "Please log in to search contacts." 
+                            : contactSearchTerm.length > 2 
+                              ? "No contacts found." 
+                              : "Type to search contacts..."
+                          }
                         </CommandEmpty>
                         {contacts.length > 0 && (
                           <CommandGroup>
@@ -283,7 +311,7 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
             
             {/* Property Details */}
             <div>
-              <h4 className="text-base font-medium text-gray-900 mb-4">Property Details</h4>
+              <h4 className="text-base font-medium text-gray-900 dark:text-white mb-4">Property Details</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -338,7 +366,7 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
             
             {/* Lead Status */}
             <div>
-              <h4 className="text-base font-medium text-gray-900 mb-4">Lead Status</h4>
+              <h4 className="text-base font-medium text-gray-900 dark:text-white mb-4">Lead Status</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -394,7 +422,7 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
             
             {/* Notes and Attachments */}
             <div>
-              <h4 className="text-base font-medium text-gray-900 mb-4">Additional Information</h4>
+              <h4 className="text-base font-medium text-gray-900 dark:text-white mb-4">Additional Information</h4>
               <div className="space-y-4">
                 <FormField
                   control={form.control}
