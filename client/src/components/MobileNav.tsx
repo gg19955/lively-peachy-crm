@@ -78,15 +78,15 @@ export default function MobileNav() {
               <div className="flex items-center space-x-3 mb-4">
                 <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center flex-shrink-0">
                   <span className="text-blue-600 dark:text-blue-400 font-medium text-sm">
-                    {(user.firstName || user.email || 'U').charAt(0).toUpperCase()}
+                    {((user as any).firstName || (user as any).email || 'U').charAt(0).toUpperCase()}
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                    {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.email}
+                    {(user as any).firstName && (user as any).lastName ? `${(user as any).firstName} ${(user as any).lastName}` : (user as any).email}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                    {user.email}
+                    {(user as any).email}
                   </p>
                 </div>
               </div>
