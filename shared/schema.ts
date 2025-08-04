@@ -43,7 +43,7 @@ export const contacts = pgTable("contacts", {
   phone: varchar("phone"),
   company: varchar("company"),
   address: varchar("address"),
-  type: varchar("type").default("prospect"), // tenant, landlord, vendor, prospect
+  type: varchar("type").default("guest"), // real_estate_professional, builder_developer, designer, business_owner, content_creator, guest, property_owner
   status: varchar("status").default("active"), // active, inactive
   notes: text("notes"),
   airtableId: varchar("airtable_id").unique(),

@@ -28,7 +28,11 @@ export default function ContactsList({ onSelectContact, selectedContactId }: Con
     ?.filter((contact: Contact) => 
       contactType === "all" || contact.type === contactType
     )
-    ?.sort((a: Contact, b: Contact) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()) || [];
+    ?.sort((a: Contact, b: Contact) => {
+      const aDate = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
+      const bDate = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
+      return bDate - aDate;
+    }) || [];
 
   const totalPages = Math.ceil(allFilteredContacts.length / CONTACTS_PER_PAGE);
   const startIndex = currentPage * CONTACTS_PER_PAGE;
@@ -77,10 +81,13 @@ export default function ContactsList({ onSelectContact, selectedContactId }: Con
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="tenant">Tenants</SelectItem>
-                <SelectItem value="landlord">Landlords</SelectItem>
-                <SelectItem value="vendor">Vendors</SelectItem>
-                <SelectItem value="prospect">Prospects</SelectItem>
+                <SelectItem value="real_estate_professional">Real Estate Professional</SelectItem>
+                <SelectItem value="builder_developer">Builder / Developer</SelectItem>
+                <SelectItem value="designer">Designer</SelectItem>
+                <SelectItem value="business_owner">Business Owner</SelectItem>
+                <SelectItem value="content_creator">Content Creator</SelectItem>
+                <SelectItem value="guest">Guest</SelectItem>
+                <SelectItem value="property_owner">Property Owner</SelectItem>
               </SelectContent>
             </Select>
             <Button variant="ghost" size="sm">
@@ -167,7 +174,7 @@ export default function ContactsList({ onSelectContact, selectedContactId }: Con
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900 dark:text-gray-100" data-testid={`text-contact-last-contact-${contact.id}`}>
-                            {formatLastContact(contact.updatedAt)}
+                            {contact.updatedAt ? formatLastContact(contact.updatedAt) : 'No date'}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
