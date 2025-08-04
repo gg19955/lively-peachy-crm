@@ -35,8 +35,7 @@ export default function AddContactModal({ open, onOpenChange }: AddContactModalP
 
   const createContactMutation = useMutation({
     mutationFn: async (data: InsertContact) => {
-      const response = await apiRequest("POST", "/api/contacts", data);
-      return response.json();
+      return apiRequest("/api/contacts", { method: "POST", body: data });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/contacts"] });
