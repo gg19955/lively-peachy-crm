@@ -29,17 +29,14 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
   const form = useForm<InsertLead>({
     resolver: zodResolver(insertLeadSchema),
     defaultValues: {
+      propertyAddress: "",
       contactName: "",
       contactEmail: "",
       contactPhone: "",
-      leadSource: "",
-      propertyType: "",
-      bedrooms: "",
-      bathrooms: "",
-      budgetRange: "",
-      preferredLocation: "",
-      leadStage: "new",
+      propertyType: "residential",
+      stage: "inquiry",
       priority: "medium",
+      timeframe: "",
       notes: "",
       attachments: [],
     },
@@ -177,25 +174,17 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                 
                 <FormField
                   control={form.control}
-                  name="leadSource"
+                  name="propertyAddress"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Lead Source</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value || ""}>
-                        <FormControl>
-                          <SelectTrigger data-testid="select-lead-source">
-                            <SelectValue placeholder="Select source" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="website">Website Inquiry</SelectItem>
-                          <SelectItem value="phone">Phone Call</SelectItem>
-                          <SelectItem value="referral">Referral</SelectItem>
-                          <SelectItem value="social_media">Social Media</SelectItem>
-                          <SelectItem value="walk_in">Walk-in</SelectItem>
-                          <SelectItem value="online_ad">Online Ad</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <FormLabel>Property Address *</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="Enter property address" 
+                          {...field}
+                          data-testid="input-property-address"
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -213,19 +202,17 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Property Type</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value || ""}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger data-testid="select-property-type">
                             <SelectValue placeholder="Select type" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="apartment">Apartment</SelectItem>
-                          <SelectItem value="house">House</SelectItem>
-                          <SelectItem value="condo">Condo</SelectItem>
-                          <SelectItem value="townhouse">Townhouse</SelectItem>
+                          <SelectItem value="residential">Residential</SelectItem>
                           <SelectItem value="commercial">Commercial</SelectItem>
-                          <SelectItem value="office">Office</SelectItem>
+                          <SelectItem value="industrial">Industrial</SelectItem>
+                          <SelectItem value="land">Land</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -235,95 +222,23 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                 
                 <FormField
                   control={form.control}
-                  name="bedrooms"
+                  name="timeframe"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Bedrooms</FormLabel>
+                      <FormLabel>Timeframe</FormLabel>
                       <Select onValueChange={field.onChange} value={field.value || ""}>
                         <FormControl>
-                          <SelectTrigger data-testid="select-bedrooms">
-                            <SelectValue placeholder="Select bedrooms" />
+                          <SelectTrigger data-testid="select-timeframe">
+                            <SelectValue placeholder="Select timeframe" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="studio">Studio</SelectItem>
-                          <SelectItem value="1">1</SelectItem>
-                          <SelectItem value="2">2</SelectItem>
-                          <SelectItem value="3">3</SelectItem>
-                          <SelectItem value="4+">4+</SelectItem>
+                          <SelectItem value="select_date">Select Date</SelectItem>
+                          <SelectItem value="less_than_3_months">Less than 3 months</SelectItem>
+                          <SelectItem value="3_to_6_months">3 to 6 months</SelectItem>
+                          <SelectItem value="6_to_12_months">6 to 12 months</SelectItem>
                         </SelectContent>
                       </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="bathrooms"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Bathrooms</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value || ""}>
-                        <FormControl>
-                          <SelectTrigger data-testid="select-bathrooms">
-                            <SelectValue placeholder="Select bathrooms" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="1">1</SelectItem>
-                          <SelectItem value="1.5">1.5</SelectItem>
-                          <SelectItem value="2">2</SelectItem>
-                          <SelectItem value="2.5">2.5</SelectItem>
-                          <SelectItem value="3+">3+</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="budgetRange"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Budget Range</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value || ""}>
-                        <FormControl>
-                          <SelectTrigger data-testid="select-budget-range">
-                            <SelectValue placeholder="Select budget" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="under-1000">Under $1,000</SelectItem>
-                          <SelectItem value="1000-1500">$1,000 - $1,500</SelectItem>
-                          <SelectItem value="1500-2000">$1,500 - $2,000</SelectItem>
-                          <SelectItem value="2000-3000">$2,000 - $3,000</SelectItem>
-                          <SelectItem value="3000+">$3,000+</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              
-              <div className="mt-4">
-                <FormField
-                  control={form.control}
-                  name="preferredLocation"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Preferred Location</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="Enter preferred area/neighborhood" 
-                          {...field}
-                          value={field.value || ""}
-                          data-testid="input-preferred-location"
-                        />
-                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -337,23 +252,21 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name="leadStage"
+                  name="stage"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Lead Stage</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value || "new"}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <SelectTrigger data-testid="select-lead-stage">
-                            <SelectValue placeholder="New Lead" />
+                          <SelectTrigger data-testid="select-stage">
+                            <SelectValue placeholder="Select stage" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="new">New Lead</SelectItem>
-                          <SelectItem value="contacted">Contacted</SelectItem>
-                          <SelectItem value="qualified">Qualified</SelectItem>
-                          <SelectItem value="viewing_scheduled">Viewing Scheduled</SelectItem>
-                          <SelectItem value="application_submitted">Application Submitted</SelectItem>
-                          <SelectItem value="approved">Approved</SelectItem>
+                          <SelectItem value="inquiry">Inquiry</SelectItem>
+                          <SelectItem value="viewing">Viewing</SelectItem>
+                          <SelectItem value="negotiation">Negotiation</SelectItem>
+                          <SelectItem value="closed">Closed</SelectItem>
                           <SelectItem value="closed_won">Closed Won</SelectItem>
                           <SelectItem value="closed_lost">Closed Lost</SelectItem>
                         </SelectContent>
@@ -417,7 +330,7 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                   <Label className="text-sm font-medium text-gray-700 mb-2 block">Attachments</Label>
                   <ObjectUploader
                     maxNumberOfFiles={5}
-                    maxFileSize={10485760}
+                    maxFileSize={26214400}
                     onGetUploadParameters={handleGetUploadParameters}
                     onComplete={handleUploadComplete}
                     buttonClassName="w-full border-2 border-dashed border-gray-300 rounded-lg px-6 py-4 text-center hover:border-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -428,7 +341,7 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                       </svg>
                       <div className="mt-2">
                         <p className="text-sm text-gray-600">Click to upload files</p>
-                        <p className="text-xs text-gray-500">PDF, DOC, or images up to 10MB</p>
+                        <p className="text-xs text-gray-500">PDF, DOC, or images up to 25MB</p>
                       </div>
                     </div>
                   </ObjectUploader>
