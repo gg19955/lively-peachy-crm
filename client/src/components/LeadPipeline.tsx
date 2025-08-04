@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import AddLeadModal from "./AddLeadModal";
 
 const stageColors = {
-  new: "bg-blue-50 border-blue-200 text-blue-900",
+  inquiry: "bg-blue-50 border-blue-200 text-blue-900",
   contacted: "bg-yellow-50 border-yellow-200 text-yellow-900", 
   qualified: "bg-orange-50 border-orange-200 text-orange-900",
   viewing_scheduled: "bg-purple-50 border-purple-200 text-purple-900",
@@ -21,7 +21,7 @@ const stageColors = {
 };
 
 const stageLabels = {
-  new: "New Leads",
+  inquiry: "New Leads",
   contacted: "Contacted", 
   qualified: "Qualified",
   viewing_scheduled: "Viewing Scheduled",
@@ -35,49 +35,23 @@ export default function LeadPipeline() {
   const { toast } = useToast();
   const [showAddLead, setShowAddLead] = useState(false);
 
-  const { data: leads, isLoading } = useQuery({
+  const { data: leads, isLoading } = useQuery<Lead[]>({
     queryKey: ["/api/leads"],
-    onError: (error: Error) => {
-      if (isUnauthorizedError(error)) {
-        toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
-        return;
-      }
-    },
   });
 
   const { data: leadsByStage } = useQuery({
     queryKey: ["/api/leads/by-stage"],
-    onError: (error: Error) => {
-      if (isUnauthorizedError(error)) {
-        toast({
-          title: "Unauthorized", 
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
-        return;
-      }
-    },
   });
 
   const getLeadsByStage = (stage: string) => {
-    return leads?.filter((lead: Lead) => lead.leadStage === stage) || [];
+    return leads?.filter((lead: Lead) => lead.stage === stage) || [];
   };
 
   const getStageCount = (stage: string) => {
     return leadsByStage?.find((item: any) => item.stage === stage)?.count || 0;
   };
 
-  const mainStages = ["new", "qualified", "closed_won"];
+  const mainStages = ["inquiry", "qualified", "closed_won"];
 
   if (isLoading) {
     return (
@@ -174,13 +148,13 @@ export default function LeadPipeline() {
                               data-testid={`card-lead-${lead.id}`}
                             >
                               <p className="text-sm font-medium text-gray-900">
-                                {lead.propertyType ? `${lead.propertyType.charAt(0).toUpperCase() + lead.propertyType.slice(1)} Property` : "Property Inquiry"}
+                                {lead.propertyAddress || "Property Inquiry"}
                               </p>
                               <p className="text-xs text-gray-500" data-testid={`text-lead-contact-${lead.id}`}>
-                                {lead.contactName}
+                                {lead.contactName || "No contact name"}
                               </p>
                               <p className="text-xs text-gray-400">
-                                {lead.leadSource || "Unknown source"}
+                                ${lead.estimatedValue ? lead.estimatedValue.toLocaleString() : "Value TBD"}
                               </p>
                             </div>
                           ))
@@ -212,10 +186,10 @@ export default function LeadPipeline() {
                         New lead inquiry
                       </p>
                       <p className="text-xs text-gray-500 mt-1">
-                        {lead.propertyType} inquiry from {lead.leadSource}
+                        inquiry from {lead.contactName || "Unknown contact"}
                       </p>
                       <p className="text-xs text-gray-400 mt-1">
-                        {new Date(lead.createdAt).toLocaleDateString()}
+                        {lead.createdAt ? new Date(lead.createdAt).toLocaleDateString() : "Date unknown"}
                       </p>
                     </div>
                   ))
