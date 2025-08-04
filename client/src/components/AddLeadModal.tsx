@@ -353,11 +353,11 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                         </FormControl>
                         <SelectContent>
                           <SelectItem value="inquiry">Inquiry</SelectItem>
-                          <SelectItem value="viewing">Viewing</SelectItem>
-                          <SelectItem value="negotiation">Negotiation</SelectItem>
+                          <SelectItem value="meeting_booked">Meeting Booked</SelectItem>
+                          <SelectItem value="proposal_sent">Proposal Sent</SelectItem>
+                          <SelectItem value="contract_sent">Contract Sent</SelectItem>
+                          <SelectItem value="signed">Signed</SelectItem>
                           <SelectItem value="closed">Closed</SelectItem>
-                          <SelectItem value="closed_won">Closed Won</SelectItem>
-                          <SelectItem value="closed_lost">Closed Lost</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />

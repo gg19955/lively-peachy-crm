@@ -225,6 +225,8 @@ export default function EditLeadModal({ lead, open, onOpenChange }: EditLeadModa
                       <SelectContent>
                         <SelectItem value="inquiry">Inquiry</SelectItem>
                         <SelectItem value="meeting_booked">Meeting Booked</SelectItem>
+                        <SelectItem value="proposal_sent">Proposal Sent</SelectItem>
+                        <SelectItem value="contract_sent">Contract Sent</SelectItem>
                         <SelectItem value="signed">Signed</SelectItem>
                         <SelectItem value="closed">Closed</SelectItem>
                       </SelectContent>
