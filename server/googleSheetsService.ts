@@ -63,33 +63,50 @@ export class GoogleSheetsService {
   // Import contacts from Google Sheets
   async importContacts(): Promise<{ imported: number; errors: string[] }> {
     try {
+      console.log(`Attempting to read from spreadsheet: ${this.config.spreadsheetId}`);
+      console.log(`Range: ${this.config.contactsSheetName}!A2:Z`);
+      
       const response = await this.sheets.spreadsheets.values.get({
         spreadsheetId: this.config.spreadsheetId,
         range: `${this.config.contactsSheetName}!A2:Z`, // Skip header row
       });
 
+      console.log('Full response:', JSON.stringify(response.data, null, 2));
       const rows = response.data.values || [];
+      console.log(`Found ${rows.length} rows in Google Sheets`);
+      console.log('First few rows:', rows.slice(0, 3));
+      
       let imported = 0;
       const errors: string[] = [];
 
-      for (const row of rows) {
+      for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
         try {
-          if (!row[0] || !row[1]) continue; // Skip empty rows
+          console.log(`Processing row ${i + 2}:`, row); // +2 because we skip header row
+          
+          // Skip rows with no name (column A)
+          if (!row[0] || row[0].trim() === '') {
+            console.log(`Skipping empty row ${i + 2}`);
+            continue;
+          }
 
           const contactData: InsertContact = {
             name: row[0] || '',
-            email: row[1] || '',
-            phone: row[2] || '',
+            email: row[1] || null, // Email can be empty
+            phone: row[2] || null, // Phone can be empty  
             type: (row[3] as any) || 'prospect',
             status: (row[4] as any) || 'active',
-            address: row[5] || '',
-            notes: row[6] || '',
+            address: row[5] || null,
+            notes: row[6] || null,
             googleSheetsId: row[7] || null, // Store Google Sheets row ID if available
           };
 
-          await storage.createContact(contactData, 'system');
+          console.log(`Creating contact:`, contactData);
+          await storage.createContact(contactData, 'test-user-123'); // Use test user ID
           imported++;
+          console.log(`Successfully imported: ${contactData.name}`);
         } catch (error) {
+          console.error(`Error importing contact "${row[0]}":`, error);
           errors.push(`Error importing contact "${row[0]}": ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
       }
