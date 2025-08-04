@@ -15,23 +15,25 @@ export class GoogleSheetsService {
   constructor(config: GoogleSheetsConfig) {
     this.config = config;
     
-    // Format the private key properly - handle both escaped and raw newlines
+    // Format the private key properly by handling different escape patterns
     let privateKey = process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY || '';
     
-    // If the key doesn't contain actual newlines, replace escaped ones
-    if (!privateKey.includes('\n') && privateKey.includes('\\n')) {
-      privateKey = privateKey.replace(/\\n/g, '\n');
-    }
+    // Handle various newline escape patterns
+    privateKey = privateKey
+      .replace(/\\\\n/g, '\n')  // Double-escaped newlines
+      .replace(/\\n/g, '\n')    // Escaped newlines
+      .trim();
     
-    // Ensure proper key format
-    if (!privateKey.startsWith('-----BEGIN')) {
-      throw new Error('Invalid private key format - must start with -----BEGIN PRIVATE KEY-----');
+    // Debug: Check if key format is correct
+    if (!privateKey.includes('-----BEGIN PRIVATE KEY-----')) {
+      throw new Error('Private key must contain -----BEGIN PRIVATE KEY----- header');
     }
     
     const auth = new google.auth.GoogleAuth({
       credentials: {
         client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
         private_key: privateKey,
+        type: 'service_account',
       },
       scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
@@ -57,11 +59,11 @@ export class GoogleSheetsService {
 
           const contactData: InsertContact = {
             name: row[0] || '',
-            email: row[1] || null,
-            phone: row[2] || null,
+            email: row[1] || '',
+            phone: row[2] || '',
             type: (row[3] as any) || 'prospect',
             status: (row[4] as any) || 'active',
-            address: row[5] || null,
+            address: row[5] || '',
             notes: row[6] || null,
             googleSheetsId: row[7] || null, // Store Google Sheets row ID if available
           };
@@ -132,8 +134,8 @@ export class GoogleSheetsService {
           const leadData: InsertLead = {
             propertyAddress: row[0] || '',
             contactName: row[1] || '',
-            contactEmail: row[2] || null,
-            contactPhone: row[3] || null,
+            contactEmail: row[2] || '',
+            contactPhone: row[3] || '',
             stage: (row[4] as any) || 'inquiry',
             priority: (row[5] as any) || 'medium',
             estimatedValue: row[6] ? parseFloat(row[6]) : null,
@@ -240,10 +242,10 @@ export class GoogleSheetsService {
   // Test connection to Google Sheets
   async testConnection(): Promise<{ success: boolean; message: string }> {
     try {
-      // Debug logging
-      console.log('Testing Google Sheets connection...');
-      console.log('Email:', process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL ? 'Set' : 'Not set');
-      console.log('Private key length:', process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY?.length || 0);
+      // Debug: validate credentials are set
+      if (!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || !process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY) {
+        throw new Error('Google Service Account credentials not properly configured');
+      }
       
       const response = await this.sheets.spreadsheets.get({
         spreadsheetId: this.config.spreadsheetId,
@@ -254,10 +256,19 @@ export class GoogleSheetsService {
         message: `Connected to spreadsheet: ${response.data.properties?.title || 'Untitled'}`
       };
     } catch (error) {
-      console.error('Google Sheets connection error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      
+      // Provide helpful error messages for common issues
+      if (errorMessage.includes('DECODER routines::unsupported')) {
+        return {
+          success: false,
+          message: 'Private key format error. Please ensure you copied the entire private_key field from your Google Service Account JSON file, including all \\n characters exactly as they appear.'
+        };
+      }
+      
       return {
         success: false,
-        message: `Connection failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+        message: `Connection failed: ${errorMessage}`
       };
     }
   }
