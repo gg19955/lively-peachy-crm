@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Mail, Phone, Edit, MessageSquare } from "lucide-react";
 import { useState } from "react";
-import { Interaction, User } from "@shared/schema";
+import { Interaction, User, type Contact } from "@shared/schema";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { useToast } from "@/hooks/use-toast";
 import AddInteractionModal from "./AddInteractionModal";
@@ -16,40 +16,14 @@ export default function ContactDetail({ contactId }: ContactDetailProps) {
   const { toast } = useToast();
   const [showAddNote, setShowAddNote] = useState(false);
 
-  const { data: contact } = useQuery({
+  const { data: contact } = useQuery<Contact>({
     queryKey: ["/api/contacts", contactId],
     enabled: !!contactId,
-    onError: (error: Error) => {
-      if (isUnauthorizedError(error)) {
-        toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
-        return;
-      }
-    },
   });
 
-  const { data: interactions, isLoading: interactionsLoading } = useQuery({
+  const { data: interactions = [], isLoading: interactionsLoading } = useQuery<Interaction[]>({
     queryKey: ["/api/contacts", contactId, "interactions"],
     enabled: !!contactId,
-    onError: (error: Error) => {
-      if (isUnauthorizedError(error)) {
-        toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
-        return;
-      }
-    },
   });
 
   if (!contactId) {
@@ -181,7 +155,7 @@ export default function ContactDetail({ contactId }: ContactDetailProps) {
                               {interaction.type.replace('_', ' ')}
                             </p>
                             <p className="text-xs text-gray-500">
-                              {formatDate(interaction.createdAt)}
+                              {interaction.createdAt ? new Date(interaction.createdAt).toLocaleDateString() : 'No date'}
                             </p>
                           </div>
                           {interaction.notes && (
