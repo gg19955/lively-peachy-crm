@@ -114,13 +114,13 @@ export default function ContactDetail({ contactId }: ContactDetailProps) {
                   </p>
                   <div className="mt-2 space-y-1">
                     {contact.email && (
-                      <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                      <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
                         <Mail className="w-4 h-4 mr-2" />
                         <span data-testid="text-contact-detail-email">{contact.email}</span>
                       </div>
                     )}
                     {contact.phone && (
-                      <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                      <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
                         <Phone className="w-4 h-4 mr-2" />
                         <span data-testid="text-contact-detail-phone">{contact.phone}</span>
                       </div>

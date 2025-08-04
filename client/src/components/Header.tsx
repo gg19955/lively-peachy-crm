@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Search, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useState } from "react";
 import AddContactModal from "./AddContactModal";
 import AddLeadModal from "./AddLeadModal";
+import SearchWithAutocomplete from "./SearchWithAutocomplete";
 
 interface HeaderProps {
   title: string;
@@ -33,17 +33,13 @@ export default function Header({ title }: HeaderProps) {
             </h2>
           </div>
           <div className="flex items-center space-x-4">
-            <div className="relative">
-              <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <Input
-                type="text"
-                placeholder={`Search ${title.toLowerCase()}...`}
-                className="pl-10 w-64"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                data-testid="input-search"
-              />
-            </div>
+            <SearchWithAutocomplete
+              placeholder={`Search ${title.toLowerCase()}...`}
+              className="w-64"
+              value={searchTerm}
+              onChange={setSearchTerm}
+              type={title.toLowerCase().includes('lead') ? 'leads' : 'contacts'}
+            />
             <ThemeToggle />
             <Button
               onClick={handleAddClick}
