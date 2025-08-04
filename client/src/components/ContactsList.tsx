@@ -17,17 +17,25 @@ interface ContactsListProps {
 export default function ContactsList({ onSelectContact, selectedContactId }: ContactsListProps) {
   const { toast } = useToast();
   const [contactType, setContactType] = useState<string>("all");
+  const [currentPage, setCurrentPage] = useState(0);
+  const CONTACTS_PER_PAGE = 5;
   
   const { data: contacts, isLoading } = useQuery<Contact[]>({
     queryKey: ["/api/contacts"],
   });
 
-  const filteredContacts = contacts
+  const allFilteredContacts = contacts
     ?.filter((contact: Contact) => 
       contactType === "all" || contact.type === contactType
     )
-    ?.sort((a: Contact, b: Contact) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
-    ?.slice(0, 5) || [];
+    ?.sort((a: Contact, b: Contact) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()) || [];
+
+  const totalPages = Math.ceil(allFilteredContacts.length / CONTACTS_PER_PAGE);
+  const startIndex = currentPage * CONTACTS_PER_PAGE;
+  const filteredContacts = allFilteredContacts.slice(startIndex, startIndex + CONTACTS_PER_PAGE);
+
+  const canGoPrevious = currentPage > 0;
+  const canGoNext = currentPage < totalPages - 1;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -60,7 +68,10 @@ export default function ContactsList({ onSelectContact, selectedContactId }: Con
         <div className="flex items-center justify-between">
           <CardTitle>Recent Contacts</CardTitle>
           <div className="flex items-center space-x-3">
-            <Select value={contactType} onValueChange={setContactType}>
+            <Select value={contactType} onValueChange={(value) => {
+              setContactType(value);
+              setCurrentPage(0); // Reset to first page when filter changes
+            }}>
               <SelectTrigger className="w-32">
                 <SelectValue placeholder="All Types" />
               </SelectTrigger>
@@ -180,14 +191,26 @@ export default function ContactsList({ onSelectContact, selectedContactId }: Con
             <div className="px-6 py-3 border-t border-gray-200 bg-gray-50">
               <div className="flex items-center justify-between">
                 <p className="text-sm text-gray-700">
-                  Showing {filteredContacts.length} of {contacts?.length || 0} results
+                  Showing {startIndex + 1}-{Math.min(startIndex + CONTACTS_PER_PAGE, allFilteredContacts.length)} of {allFilteredContacts.length} results
                 </p>
                 <div className="flex items-center space-x-2">
-                  <Button variant="outline" size="sm" disabled>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    disabled={!canGoPrevious}
+                    onClick={() => setCurrentPage(currentPage - 1)}
+                    data-testid="button-previous-contacts"
+                  >
                     <ChevronLeft className="w-4 h-4 mr-1" />
                     Previous
                   </Button>
-                  <Button variant="outline" size="sm" disabled>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    disabled={!canGoNext}
+                    onClick={() => setCurrentPage(currentPage + 1)}
+                    data-testid="button-next-contacts"
+                  >
                     Next
                     <ChevronRight className="w-4 h-4 ml-1" />
                   </Button>
