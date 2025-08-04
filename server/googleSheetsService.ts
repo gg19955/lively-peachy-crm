@@ -152,23 +152,33 @@ export class GoogleSheetsService {
       let imported = 0;
       const errors: string[] = [];
 
-      for (const row of rows) {
+      for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
         try {
-          if (!row[0] || !row[1]) continue; // Skip empty rows
+          // Skip empty rows or rows without property address
+          if (!row || row.length === 0 || !row[0] || row[0].toString().trim() === '') {
+            continue;
+          }
 
+          // Map your sheet structure: Property Address | Contact Name | Contact Email | Contact Phone | Stage | Priority | Estimated Value | Notes | ID
           const leadData: InsertLead = {
-            propertyAddress: row[0] || '',
-            contactName: row[1] || '',
-            contactEmail: row[2] || '',
-            contactPhone: row[3] || '',
-            stage: (row[4] as any) || 'inquiry',
-            priority: (row[5] as any) || 'medium',
-            estimatedValue: row[6] ? parseFloat(row[6]) : null,
-            notes: row[7] || '',
-            googleSheetsId: row[8] || null, // Store Google Sheets row ID if available
+            propertyAddress: (row[0] || '').toString().trim(),
+            contactName: row[1] && row[1].toString().trim() ? row[1].toString().trim() : null,
+            contactEmail: row[2] && row[2].toString().trim() ? row[2].toString().trim() : null,
+            contactPhone: row[3] && row[3].toString().trim() ? row[3].toString().trim() : null,
+            stage: row[4] && row[4].toString().trim() ? (row[4].toString().toLowerCase() as any) : 'inquiry',
+            priority: row[5] && row[5].toString().trim() ? (row[5].toString().toLowerCase() as any) : 'medium',
+            estimatedValue: row[6] && row[6].toString().trim() ? parseFloat(row[6].toString().replace(/[^0-9.-]/g, '')) || null : null,
+            notes: row[7] && row[7].toString().trim() ? row[7].toString().trim() : null,
+            googleSheetsId: row[8] && row[8].toString().trim() ? row[8].toString().trim() : null,
           };
 
-          await storage.createLead(leadData, 'system');
+          // Validate that we have a property address at minimum
+          if (!leadData.propertyAddress) {
+            continue;
+          }
+
+          await storage.createLead(leadData, 'test-user-123');
           imported++;
         } catch (error) {
           errors.push(`Error importing lead "${row[0]}": ${error instanceof Error ? error.message : 'Unknown error'}`);
