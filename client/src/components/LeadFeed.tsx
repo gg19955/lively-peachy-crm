@@ -204,15 +204,15 @@ export default function LeadFeed() {
   return (
     <div className="space-y-6">
       <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100">Lead Activity Feed</CardTitle>
-            <Badge variant="secondary" className="text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+        <CardHeader className="px-4 sm:px-6">
+          <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+            <CardTitle className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Lead Activity Feed</CardTitle>
+            <Badge variant="secondary" className="text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 w-fit">
               {activities.length} recent activities
             </Badge>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-4 sm:px-6">
           {activities.length === 0 ? (
             <div className="text-center py-8 text-gray-500 dark:text-gray-400">
               <Clock className="h-12 w-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
@@ -222,7 +222,7 @@ export default function LeadFeed() {
           ) : (
             <div className="space-y-4">
               {activities.map((activity) => (
-                <div key={activity.id} className="flex items-start space-x-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                <div key={activity.id} className="flex items-start space-x-3 sm:space-x-4 p-3 sm:p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
                   <div className="flex-shrink-0">
                     <Avatar className="h-8 w-8">
                       <AvatarFallback className="text-xs bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300">
@@ -231,14 +231,14 @@ export default function LeadFeed() {
                     </Avatar>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center space-x-2">
+                    <div className="flex flex-col space-y-2 sm:flex-row sm:items-start sm:justify-between sm:space-y-0">
+                      <div className="flex items-start space-x-2">
                         {getActivityIcon(activity)}
-                        <div className="text-sm text-gray-900 dark:text-gray-100">
+                        <div className="text-sm text-gray-900 dark:text-gray-100 leading-relaxed">
                           {getActivityMessage(activity)}
                         </div>
                       </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400 flex-shrink-0 ml-4">
+                      <div className="text-xs text-gray-500 dark:text-gray-400 flex-shrink-0 sm:ml-4">
                         {formatTimeAgo(activity.timestamp)}
                       </div>
                     </div>
