@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,12 +9,26 @@ import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { insertLeadSchema, type InsertLead } from "@shared/schema";
+import { insertLeadSchema, type InsertLead, type Contact } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { ObjectUploader } from "@/components/ObjectUploader";
 import type { UploadResult } from "@uppy/core";
+import { Search, User } from "lucide-react";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface AddLeadModalProps {
   open: boolean;
@@ -25,6 +39,8 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [attachments, setAttachments] = useState<string[]>([]);
+  const [contactSearchOpen, setContactSearchOpen] = useState(false);
+  const [contactSearchTerm, setContactSearchTerm] = useState("");
 
   const form = useForm<InsertLead>({
     resolver: zodResolver(insertLeadSchema),
@@ -42,10 +58,28 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
     },
   });
 
+  // Search for existing contacts
+  const { data: contacts = [] } = useQuery<Contact[]>({
+    queryKey: ["/api/contacts", { search: contactSearchTerm }],
+    enabled: contactSearchTerm.length > 2,
+  });
+
+  // Handle contact selection for autofill
+  const handleContactSelect = (contact: Contact) => {
+    form.setValue("contactName", contact.name);
+    form.setValue("contactEmail", contact.email || "");
+    form.setValue("contactPhone", contact.phone || "");
+    setContactSearchOpen(false);
+    setContactSearchTerm("");
+    toast({
+      title: "Contact Information Filled",
+      description: `Autofilled details for ${contact.name}`,
+    });
+  };
+
   const createLeadMutation = useMutation({
     mutationFn: async (data: InsertLead) => {
-      const response = await apiRequest("POST", "/api/leads", { ...data, attachments });
-      return response.json();
+      return await apiRequest("/api/leads", { method: "POST", body: { ...data, attachments } });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
@@ -79,8 +113,7 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
   });
 
   const handleGetUploadParameters = async () => {
-    const response = await apiRequest("POST", "/api/objects/upload", {});
-    const data = await response.json();
+    const data = await apiRequest("/api/objects/upload", { method: "POST", body: {} });
     return {
       method: "PUT" as const,
       url: data.uploadURL,
@@ -113,7 +146,60 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {/* Contact Information */}
             <div>
-              <h4 className="text-base font-medium text-gray-900 mb-4">Contact Information</h4>
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="text-base font-medium text-gray-900">Contact Information</h4>
+                <Popover open={contactSearchOpen} onOpenChange={setContactSearchOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-xs"
+                      data-testid="button-search-contact"
+                    >
+                      <Search className="w-3 h-3 mr-1" />
+                      Search Existing Contact
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 p-0" align="end">
+                    <Command>
+                      <CommandInput
+                        placeholder="Search contacts..."
+                        value={contactSearchTerm}
+                        onValueChange={setContactSearchTerm}
+                        data-testid="input-contact-search"
+                      />
+                      <CommandList>
+                        <CommandEmpty>
+                          {contactSearchTerm.length > 2 ? "No contacts found." : "Type to search contacts..."}
+                        </CommandEmpty>
+                        {contacts.length > 0 && (
+                          <CommandGroup>
+                            {contacts.slice(0, 10).map((contact) => (
+                              <CommandItem
+                                key={contact.id}
+                                onSelect={() => handleContactSelect(contact)}
+                                className="cursor-pointer"
+                                data-testid={`contact-option-${contact.id}`}
+                              >
+                                <User className="w-4 h-4 mr-2" />
+                                <div className="flex flex-col">
+                                  <span className="font-medium">{contact.name}</span>
+                                  <span className="text-xs text-gray-500">
+                                    {contact.email && contact.phone ? 
+                                      `${contact.email} • ${contact.phone}` :
+                                      contact.email || contact.phone || "No contact details"
+                                    }
+                                  </span>
+                                </div>
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        )}
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -124,7 +210,8 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                       <FormControl>
                         <Input 
                           placeholder="Enter contact name" 
-                          {...field} 
+                          {...field}
+                          value={field.value || ""}
                           data-testid="input-lead-contact-name"
                         />
                       </FormControl>
@@ -144,6 +231,7 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                           type="email"
                           placeholder="Enter email" 
                           {...field}
+                          value={field.value || ""}
                           data-testid="input-lead-contact-email"
                         />
                       </FormControl>
@@ -182,6 +270,7 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                         <Input 
                           placeholder="Enter property address" 
                           {...field}
+                          value={field.value || ""}
                           data-testid="input-property-address"
                         />
                       </FormControl>
@@ -202,7 +291,7 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Property Type</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value || ""}>
                         <FormControl>
                           <SelectTrigger data-testid="select-property-type">
                             <SelectValue placeholder="Select type" />
@@ -256,7 +345,7 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Lead Stage</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value || ""}>
                         <FormControl>
                           <SelectTrigger data-testid="select-stage">
                             <SelectValue placeholder="Select stage" />
