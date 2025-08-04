@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FaGoogle } from "react-icons/fa";
-import { Building2 } from "lucide-react";
+import logoImage from "@assets/CAPITAL ICONS (13)_1754335100278.png";
 
 export default function Landing() {
   return (
@@ -9,7 +9,11 @@ export default function Landing() {
       <Card className="w-full max-w-md mx-4">
         <CardContent className="pt-6 text-center">
           <div className="mb-6">
-            <Building2 className="mx-auto h-12 w-12 text-blue-600 mb-4" />
+            <img 
+              src={logoImage} 
+              alt="PropertyCRM Logo" 
+              className="mx-auto h-16 w-16 mb-4"
+            />
             <p className="text-gray-300 dark:text-gray-200">Professional Property Management</p>
           </div>
 
