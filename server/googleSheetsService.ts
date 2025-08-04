@@ -94,8 +94,8 @@ export class GoogleSheetsService {
           contact.name,
           contact.email || '',
           contact.phone || '',
-          contact.type,
-          contact.status,
+          contact.type || '',
+          contact.status || '',
           contact.address || '',
           contact.notes || '',
           contact.id
@@ -167,11 +167,11 @@ export class GoogleSheetsService {
       for (const lead of leads) {
         values.push([
           lead.propertyAddress,
-          lead.contactName,
+          lead.contactName || '',
           lead.contactEmail || '',
           lead.contactPhone || '',
-          lead.stage,
-          lead.priority,
+          lead.stage || '',
+          lead.priority || '',
           lead.estimatedValue?.toString() || '',
           lead.notes || '',
           lead.id

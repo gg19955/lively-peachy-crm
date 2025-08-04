@@ -79,19 +79,19 @@ export class DatabaseStorage implements IStorage {
 
   // Contact operations
   async getContacts(searchTerm?: string): Promise<Contact[]> {
-    let query = db.select().from(contacts);
-    
     if (searchTerm) {
-      query = query.where(
-        or(
-          ilike(contacts.name, `%${searchTerm}%`),
-          ilike(contacts.email, `%${searchTerm}%`),
-          ilike(contacts.company, `%${searchTerm}%`)
+      return await db.select().from(contacts)
+        .where(
+          or(
+            ilike(contacts.name, `%${searchTerm}%`),
+            ilike(contacts.email, `%${searchTerm}%`),
+            ilike(contacts.company, `%${searchTerm}%`)
+          )
         )
-      );
+        .orderBy(desc(contacts.updatedAt));
     }
     
-    return await query.orderBy(desc(contacts.updatedAt));
+    return await db.select().from(contacts).orderBy(desc(contacts.updatedAt));
   }
 
   async getContact(id: string): Promise<Contact | undefined> {
@@ -158,13 +158,13 @@ export class DatabaseStorage implements IStorage {
 
   // Lead operations
   async getLeads(stage?: string): Promise<Lead[]> {
-    let query = db.select().from(leads);
-    
     if (stage) {
-      query = query.where(eq(leads.leadStage, stage));
+      return await db.select().from(leads)
+        .where(eq(leads.stage, stage))
+        .orderBy(desc(leads.createdAt));
     }
     
-    return await query.orderBy(desc(leads.createdAt));
+    return await db.select().from(leads).orderBy(desc(leads.createdAt));
   }
 
   async getLead(id: string): Promise<Lead | undefined> {
@@ -196,11 +196,11 @@ export class DatabaseStorage implements IStorage {
   async getLeadsByStage(): Promise<{ stage: string; count: number }[]> {
     const result = await db
       .select({
-        stage: leads.leadStage,
+        stage: leads.stage,
         count: sql<number>`count(*)::int`,
       })
       .from(leads)
-      .groupBy(leads.leadStage);
+      .groupBy(leads.stage);
 
     return result.map(row => ({
       stage: row.stage || 'unknown',
@@ -222,16 +222,14 @@ export class DatabaseStorage implements IStorage {
     const [activeLeadsCount] = await db
       .select({ count: sql<number>`count(*)::int` })
       .from(leads)
-      .where(and(
-        eq(leads.leadStage, 'new'),
-        or(
-          eq(leads.leadStage, 'contacted'),
-          eq(leads.leadStage, 'qualified')
-        )
+      .where(or(
+        eq(leads.stage, 'inquiry'),
+        eq(leads.stage, 'viewing'),
+        eq(leads.stage, 'negotiation')
       ));
 
     const [propertiesCount] = await db
-      .select({ count: sql<number>`count(distinct ${leads.propertyType})::int` })
+      .select({ count: sql<number>`count(distinct property_type)::int` })
       .from(leads);
 
     const thisMonth = new Date();
@@ -241,7 +239,7 @@ export class DatabaseStorage implements IStorage {
     const [thisMonthCount] = await db
       .select({ count: sql<number>`count(*)::int` })
       .from(leads)
-      .where(sql`${leads.createdAt} >= ${thisMonth}`);
+      .where(sql`created_at >= ${thisMonth}`);
 
     return {
       totalContacts: contactsCount.count,
