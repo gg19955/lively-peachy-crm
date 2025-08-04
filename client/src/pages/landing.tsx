@@ -5,17 +5,16 @@ import { Building2 } from "lucide-react";
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
       <Card className="w-full max-w-md mx-4">
         <CardContent className="pt-6 text-center">
           <div className="mb-6">
             <Building2 className="mx-auto h-12 w-12 text-blue-600 mb-4" />
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">PropertyCRM</h1>
-            <p className="text-gray-600">Professional Property Management</p>
+            <p className="text-gray-300 dark:text-gray-200">Professional Property Management</p>
           </div>
 
           <div className="mb-6">
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-gray-400 dark:text-gray-300 mb-4">
               Streamline your property management workflow with our comprehensive CRM solution.
             </p>
           </div>
@@ -32,10 +31,10 @@ export default function Landing() {
             
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-gray-300" />
+                <span className="w-full border-t border-gray-300 dark:border-gray-600" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">or</span>
+                <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">or</span>
               </div>
             </div>
             
@@ -48,7 +47,7 @@ export default function Landing() {
             </Button>
           </div>
 
-          <p className="text-xs text-gray-500 mt-4">
+          <p className="text-xs text-gray-400 dark:text-gray-300 mt-4">
             Access your contacts, leads, and property management tools
           </p>
         </CardContent>
