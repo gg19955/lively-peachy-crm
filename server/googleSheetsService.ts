@@ -266,6 +266,13 @@ export class GoogleSheetsService {
         };
       }
       
+      if (errorMessage.includes('invalid_grant: Invalid grant: account not found')) {
+        return {
+          success: false,
+          message: 'Service account not found. Please verify: 1) The GOOGLE_SERVICE_ACCOUNT_EMAIL matches your JSON file exactly, 2) Google Sheets API is enabled in your Google Cloud project, 3) The service account exists and is active.'
+        };
+      }
+      
       return {
         success: false,
         message: `Connection failed: ${errorMessage}`
