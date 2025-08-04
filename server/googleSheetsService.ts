@@ -244,8 +244,17 @@ export class GoogleSheetsService {
     try {
       // Debug: validate credentials are set
       if (!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || !process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY) {
-        throw new Error('Google Service Account credentials not properly configured');
+        return {
+          success: false,
+          message: 'Google Service Account credentials not configured. Please set GOOGLE_SERVICE_ACCOUNT_EMAIL and GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY secrets.'
+        };
       }
+      
+      console.log('Testing Google Sheets access with:', {
+        email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+        spreadsheetId: this.config.spreadsheetId,
+        hasKey: !!process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY
+      });
       
       // Try to access a simple range first to test permissions
       const testResponse = await this.sheets.spreadsheets.values.get({
