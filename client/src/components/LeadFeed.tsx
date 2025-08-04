@@ -54,10 +54,26 @@ export default function LeadFeed() {
     queryKey: ["/api/leads"],
   });
 
+  // Fetch user details for proper names
+  const { data: users = [] } = useQuery({
+    queryKey: ["/api/users"],
+    enabled: leads.length > 0,
+  });
+
   // Generate activity feed from leads data
   // In a real implementation, this would come from a dedicated activity log table
   const generateActivityFeed = (leads: Lead[]): ActivityItem[] => {
     const activities: ActivityItem[] = [];
+    
+    // Helper function to get user name
+    const getUserName = (userId: string | null) => {
+      if (!userId || !users.length) return 'Guss McSmith';
+      const user = users.find((u: any) => u.id === userId);
+      if (user) {
+        return `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Guss McSmith';
+      }
+      return 'Guss McSmith';
+    };
     
     leads.forEach((lead) => {
       // Add lead creation activity
@@ -67,9 +83,9 @@ export default function LeadFeed() {
           type: 'lead_created',
           leadId: lead.id,
           userId: lead.createdBy || 'system',
-          userName: 'System User', // In real app, would fetch user details
+          userName: getUserName(lead.createdBy),
           propertyAddress: lead.propertyAddress || 'Unknown Address',
-          timestamp: lead.createdAt || new Date().toISOString(),
+          timestamp: typeof lead.createdAt === 'string' ? lead.createdAt : lead.createdAt.toISOString(),
         });
       }
 
@@ -80,11 +96,11 @@ export default function LeadFeed() {
           type: 'stage_changed',
           leadId: lead.id,
           userId: lead.createdBy || 'system',
-          userName: 'System User',
+          userName: getUserName(lead.createdBy),
           propertyAddress: lead.propertyAddress || 'Unknown Address',
           fromStage: 'inquiry',
           toStage: lead.stage,
-          timestamp: lead.updatedAt || new Date().toISOString(),
+          timestamp: typeof lead.updatedAt === 'string' ? lead.updatedAt : lead.updatedAt.toISOString(),
         });
       }
     });
