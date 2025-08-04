@@ -160,34 +160,37 @@ export default function LeadPipeline({ onToggleFeed }: LeadPipelineProps) {
   return (
     <>
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <CardTitle>Property Leads</CardTitle>
+        <CardHeader className="px-4 sm:px-6">
+          <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+              <CardTitle className="text-lg sm:text-xl">Property Leads</CardTitle>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={onToggleFeed}
                 data-testid="button-toggle-feed"
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 w-fit"
               >
                 <Activity className="w-4 h-4" />
-                Lead Feed
+                <span className="hidden sm:inline">Lead Feed</span>
+                <span className="sm:hidden">Feed</span>
               </Button>
             </div>
             <Button 
               onClick={() => setShowAddLead(true)}
               data-testid="button-add-lead"
+              className="w-full sm:w-auto"
             >
               <Plus className="w-4 h-4 mr-2" />
-              Add New Lead
+              <span className="hidden sm:inline">Add New Lead</span>
+              <span className="sm:hidden">Add Lead</span>
             </Button>
           </div>
         </CardHeader>
         
-        <CardContent>
+        <CardContent className="px-4 sm:px-6">
           <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-4">Lead Pipeline</h4>
-          <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
                 {mainStages.map((stage) => {
                   const stageLeads = getLeadsByStage(stage);
                   const count = getStageCount(stage);

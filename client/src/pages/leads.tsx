@@ -55,13 +55,13 @@ export default function LeadsPage() {
         <main className="flex-1 overflow-y-auto">
           <div className="p-6">
             {/* View Toggle Buttons */}
-            <div className="flex items-center space-x-2 mb-6">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-2 mb-6">
               <Button
                 variant={viewMode === 'pipeline' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setViewMode('pipeline')}
                 data-testid="button-pipeline-view"
-                className="flex items-center space-x-1"
+                className="flex items-center justify-center space-x-1 w-full sm:w-auto"
               >
                 <Kanban className="w-4 h-4" />
                 <span>Pipeline</span>
@@ -71,7 +71,7 @@ export default function LeadsPage() {
                 size="sm"
                 onClick={() => setViewMode('list')}
                 data-testid="button-list-view"
-                className="flex items-center space-x-1"
+                className="flex items-center justify-center space-x-1 w-full sm:w-auto"
               >
                 <List className="w-4 h-4" />
                 <span>All Leads</span>
@@ -81,7 +81,7 @@ export default function LeadsPage() {
                 size="sm"
                 onClick={() => setViewMode('feed')}
                 data-testid="button-feed-view"
-                className="flex items-center space-x-1"
+                className="flex items-center justify-center space-x-1 w-full sm:w-auto"
               >
                 <Activity className="w-4 h-4" />
                 <span>Activity Feed</span>
