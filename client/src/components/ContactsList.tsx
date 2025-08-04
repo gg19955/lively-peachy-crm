@@ -2,7 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Filter, ChevronLeft, ChevronRight } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Filter, ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { useState } from "react";
 import { Contact } from "@shared/schema";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -17,6 +18,7 @@ interface ContactsListProps {
 export default function ContactsList({ onSelectContact, selectedContactId }: ContactsListProps) {
   const { toast } = useToast();
   const [contactType, setContactType] = useState<string>("all");
+  const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
   const CONTACTS_PER_PAGE = 5;
   
@@ -25,9 +27,14 @@ export default function ContactsList({ onSelectContact, selectedContactId }: Con
   });
 
   const allFilteredContacts = contacts
-    ?.filter((contact: Contact) => 
-      contactType === "all" || contact.type === contactType
-    )
+    ?.filter((contact: Contact) => {
+      const matchesType = contactType === "all" || contact.type === contactType;
+      const matchesSearch = !searchTerm || 
+        contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        contact.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        contact.company?.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesType && matchesSearch;
+    })
     ?.sort((a: Contact, b: Contact) => {
       const aDate = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
       const bDate = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
@@ -69,7 +76,7 @@ export default function ContactsList({ onSelectContact, selectedContactId }: Con
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-4">
           <CardTitle>Recent Contacts</CardTitle>
           <div className="flex items-center space-x-3">
             <Select value={contactType} onValueChange={(value) => {
@@ -94,6 +101,22 @@ export default function ContactsList({ onSelectContact, selectedContactId }: Con
               <Filter className="w-4 h-4" />
             </Button>
           </div>
+        </div>
+        
+        {/* Search bar for contacts */}
+        <div className="relative">
+          <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          <Input
+            type="text"
+            placeholder="Search contacts..."
+            className="pl-10"
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(0); // Reset to first page when search changes
+            }}
+            data-testid="input-search-contacts"
+          />
         </div>
       </CardHeader>
       
