@@ -16,7 +16,7 @@ export default function AirtableSyncPage() {
   const [leadsTableName, setLeadsTableName] = useState("Leads");
 
   const fullSyncMutation = useMutation({
-    mutationFn: () => apiRequest("/api/airtable/sync", { method: "POST" }),
+    mutationFn: () => apiRequest({ url: "/api/airtable/sync", method: "POST" }),
     onSuccess: (data) => {
       toast({
         title: "Sync Complete",
@@ -37,9 +37,10 @@ export default function AirtableSyncPage() {
   });
 
   const importContactsMutation = useMutation({
-    mutationFn: () => apiRequest("/api/airtable/import/contacts", { 
+    mutationFn: () => apiRequest({ 
+      url: "/api/airtable/import/contacts",
       method: "POST",
-      body: JSON.stringify({ tableName: contactsTableName })
+      body: { tableName: contactsTableName }
     }),
     onSuccess: (data) => {
       toast({
@@ -59,9 +60,10 @@ export default function AirtableSyncPage() {
   });
 
   const importLeadsMutation = useMutation({
-    mutationFn: () => apiRequest("/api/airtable/import/leads", { 
+    mutationFn: () => apiRequest({ 
+      url: "/api/airtable/import/leads",
       method: "POST",
-      body: JSON.stringify({ tableName: leadsTableName })
+      body: { tableName: leadsTableName }
     }),
     onSuccess: (data) => {
       toast({
@@ -81,9 +83,10 @@ export default function AirtableSyncPage() {
   });
 
   const exportContactsMutation = useMutation({
-    mutationFn: () => apiRequest("/api/airtable/export/contacts", { 
+    mutationFn: () => apiRequest({ 
+      url: "/api/airtable/export/contacts",
       method: "POST",
-      body: JSON.stringify({ tableName: contactsTableName })
+      body: { tableName: contactsTableName }
     }),
     onSuccess: (data) => {
       toast({
@@ -101,9 +104,10 @@ export default function AirtableSyncPage() {
   });
 
   const exportLeadsMutation = useMutation({
-    mutationFn: () => apiRequest("/api/airtable/export/leads", { 
+    mutationFn: () => apiRequest({ 
+      url: "/api/airtable/export/leads",
       method: "POST",
-      body: JSON.stringify({ tableName: leadsTableName })
+      body: { tableName: leadsTableName }
     }),
     onSuccess: (data) => {
       toast({
