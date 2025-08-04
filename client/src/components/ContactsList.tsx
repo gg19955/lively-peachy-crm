@@ -96,10 +96,10 @@ export default function ContactsList({ onSelectContact, selectedContactId }: Con
             <div className="space-y-4">
               {[...Array(5)].map((_, i) => (
                 <div key={i} className="flex items-center space-x-4 animate-pulse">
-                  <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+                  <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
                   <div className="flex-1">
-                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
                   </div>
                 </div>
               ))}
@@ -128,7 +128,7 @@ export default function ContactsList({ onSelectContact, selectedContactId }: Con
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                   {filteredContacts.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="px-6 py-8 text-center text-gray-500">
+                      <td colSpan={4} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
                         No contacts found
                       </td>
                     </tr>

@@ -18,10 +18,10 @@ export default function StatsCards() {
           <Card key={i} className="animate-pulse">
             <CardContent className="p-6">
               <div className="flex items-center">
-                <div className="p-2 bg-gray-200 rounded-lg w-10 h-10"></div>
+                <div className="p-2 bg-gray-200 dark:bg-gray-700 rounded-lg w-10 h-10"></div>
                 <div className="ml-4 flex-1">
-                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                  <div className="h-6 bg-gray-200 rounded"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+                  <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded"></div>
                 </div>
               </div>
             </CardContent>
