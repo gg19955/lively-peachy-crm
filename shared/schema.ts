@@ -77,6 +77,8 @@ export const leads = pgTable("leads", {
   reminderDate: timestamp("reminder_date"),
   notes: text("notes"),
   attachments: text("attachments").array(), // Array of file paths
+  archived: boolean("archived").default(false), // true when lead is archived (moved to closed)
+  archivedAt: timestamp("archived_at"), // timestamp when lead was archived
   airtableId: varchar("airtable_id").unique(),
   googleSheetsId: varchar("google_sheets_id").unique(),
   createdAt: timestamp("created_at").defaultNow(),

@@ -53,13 +53,18 @@ export default function LeadPipeline({ onToggleFeed }: LeadPipelineProps) {
     mutationFn: async ({ leadId, newStage }: { leadId: string; newStage: string }) => {
       return await apiRequest(`/api/leads/${leadId}`, { method: "PUT", body: { stage: newStage } });
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
       queryClient.invalidateQueries({ queryKey: ["/api/leads/by-stage"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+      
+      const message = variables.newStage === 'closed' 
+        ? "Lead archived successfully" 
+        : "Lead stage updated successfully";
+      
       toast({
         title: "Success",
-        description: "Lead stage updated successfully",
+        description: message,
       });
     },
     onError: (error: Error) => {
