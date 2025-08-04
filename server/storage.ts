@@ -36,12 +36,13 @@ export interface IStorage {
   createInteraction(interaction: InsertInteraction, userId: string): Promise<Interaction>;
 
   // Lead operations
-  getLeads(stage?: string): Promise<Lead[]>;
+  getLeads(stage?: string, includeArchived?: boolean): Promise<Lead[]>;
   getLead(id: string): Promise<Lead | undefined>;
   createLead(lead: InsertLead, userId: string): Promise<Lead>;
   updateLead(id: string, lead: Partial<InsertLead>): Promise<Lead>;
   deleteLead(id: string): Promise<void>;
   getLeadsByStage(): Promise<{ stage: string; count: number }[]>;
+  archiveLead(id: string): Promise<Lead>;
 
   // Statistics
   getStats(): Promise<{
@@ -162,14 +163,23 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Lead operations
-  async getLeads(stage?: string): Promise<Lead[]> {
+  async getLeads(stage?: string, includeArchived?: boolean): Promise<Lead[]> {
+    let conditions = [];
+    
     if (stage) {
-      return await db.select().from(leads)
-        .where(eq(leads.stage, stage))
-        .orderBy(desc(leads.createdAt));
+      conditions.push(eq(leads.stage, stage));
     }
     
-    return await db.select().from(leads).orderBy(desc(leads.createdAt));
+    // By default, exclude archived leads unless specifically requested
+    if (!includeArchived) {
+      conditions.push(eq(leads.archived, false));
+    }
+    
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+    
+    return await db.select().from(leads)
+      .where(whereClause)
+      .orderBy(desc(leads.createdAt));
   }
 
   async getLead(id: string): Promise<Lead | undefined> {
@@ -186,6 +196,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateLead(id: string, lead: Partial<InsertLead>): Promise<Lead> {
+    // If stage is being changed to 'closed', auto-archive the lead
+    if (lead.stage === 'closed') {
+      lead.archived = true;
+      lead.archivedAt = new Date();
+    }
+    
     const [updatedLead] = await db
       .update(leads)
       .set({ ...lead, updatedAt: new Date() })
@@ -205,12 +221,27 @@ export class DatabaseStorage implements IStorage {
         count: sql<number>`count(*)::int`,
       })
       .from(leads)
+      .where(eq(leads.archived, false)) // Only count non-archived leads
       .groupBy(leads.stage);
 
     return result.map(row => ({
       stage: row.stage || 'unknown',
       count: row.count,
     }));
+  }
+
+  async archiveLead(id: string): Promise<Lead> {
+    const [archivedLead] = await db
+      .update(leads)
+      .set({ 
+        archived: true, 
+        archivedAt: new Date(),
+        stage: 'closed',
+        updatedAt: new Date() 
+      })
+      .where(eq(leads.id, id))
+      .returning();
+    return archivedLead;
   }
 
   // Statistics
@@ -227,10 +258,15 @@ export class DatabaseStorage implements IStorage {
     const [activeLeadsCount] = await db
       .select({ count: sql<number>`count(*)::int` })
       .from(leads)
-      .where(or(
-        eq(leads.stage, 'inquiry'),
-        eq(leads.stage, 'viewing'),
-        eq(leads.stage, 'negotiation')
+      .where(and(
+        eq(leads.archived, false),
+        or(
+          eq(leads.stage, 'inquiry'),
+          eq(leads.stage, 'meeting_booked'),
+          eq(leads.stage, 'proposal_sent'),
+          eq(leads.stage, 'contract_sent'),
+          eq(leads.stage, 'signed')
+        )
       ));
 
     const [propertiesCount] = await db
@@ -244,7 +280,10 @@ export class DatabaseStorage implements IStorage {
     const [thisMonthCount] = await db
       .select({ count: sql<number>`count(*)::int` })
       .from(leads)
-      .where(sql`created_at >= ${thisMonth}`);
+      .where(and(
+        eq(leads.archived, false),
+        sql`created_at >= ${thisMonth}`
+      ));
 
     return {
       totalContacts: contactsCount.count,
