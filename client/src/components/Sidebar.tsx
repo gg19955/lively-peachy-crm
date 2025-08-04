@@ -8,7 +8,7 @@ const navigation = [
   { name: "Dashboard", href: "/", icon: Home },
   { name: "Contacts", href: "/contacts", icon: Users },
   { name: "Leads", href: "/leads", icon: Zap },
-  { name: "Airtable Sync", href: "/airtable-sync", icon: RefreshCw },
+  { name: "Google Sheets", href: "/google-sheets", icon: RefreshCw },
   { name: "Reports", href: "/reports", icon: BarChart3 },
 ];
 

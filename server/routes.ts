@@ -386,6 +386,139 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Google Sheets integration endpoints
+  app.post('/api/google-sheets/test', async (req, res) => {
+    try {
+      const { GoogleSheetsService } = await import('./googleSheetsService');
+      const { spreadsheetId, contactsSheetName, leadsSheetName } = req.body;
+      
+      const service = new GoogleSheetsService({
+        spreadsheetId,
+        contactsSheetName: contactsSheetName || 'Contacts',
+        leadsSheetName: leadsSheetName || 'Leads'
+      });
+      
+      const result = await service.testConnection();
+      res.json(result);
+    } catch (error) {
+      console.error("Error testing Google Sheets connection:", error);
+      res.status(500).json({ 
+        success: false,
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  app.post('/api/google-sheets/sync', async (req, res) => {
+    try {
+      const { GoogleSheetsService } = await import('./googleSheetsService');
+      const { spreadsheetId, contactsSheetName, leadsSheetName } = req.body;
+      
+      const service = new GoogleSheetsService({
+        spreadsheetId,
+        contactsSheetName: contactsSheetName || 'Contacts',
+        leadsSheetName: leadsSheetName || 'Leads'
+      });
+      
+      const result = await service.fullSync();
+      res.json(result);
+    } catch (error) {
+      console.error("Error syncing with Google Sheets:", error);
+      res.status(500).json({ 
+        message: "Failed to sync with Google Sheets",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  app.post('/api/google-sheets/import/contacts', async (req, res) => {
+    try {
+      const { GoogleSheetsService } = await import('./googleSheetsService');
+      const { spreadsheetId, sheetName } = req.body;
+      
+      const service = new GoogleSheetsService({
+        spreadsheetId,
+        contactsSheetName: sheetName || 'Contacts',
+        leadsSheetName: 'Leads'
+      });
+      
+      const result = await service.importContacts();
+      res.json(result);
+    } catch (error) {
+      console.error("Error importing contacts:", error);
+      res.status(500).json({ 
+        message: "Failed to import contacts",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  app.post('/api/google-sheets/import/leads', async (req, res) => {
+    try {
+      const { GoogleSheetsService } = await import('./googleSheetsService');
+      const { spreadsheetId, sheetName } = req.body;
+      
+      const service = new GoogleSheetsService({
+        spreadsheetId,
+        contactsSheetName: 'Contacts',
+        leadsSheetName: sheetName || 'Leads'
+      });
+      
+      const result = await service.importLeads();
+      res.json(result);
+    } catch (error) {
+      console.error("Error importing leads:", error);
+      res.status(500).json({ 
+        message: "Failed to import leads",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  app.post('/api/google-sheets/export/contacts', async (req, res) => {
+    try {
+      const { GoogleSheetsService } = await import('./googleSheetsService');
+      const { spreadsheetId, sheetName } = req.body;
+      
+      const service = new GoogleSheetsService({
+        spreadsheetId,
+        contactsSheetName: sheetName || 'Contacts',
+        leadsSheetName: 'Leads'
+      });
+      
+      const result = await service.exportContacts();
+      res.json(result);
+    } catch (error) {
+      console.error("Error exporting contacts:", error);
+      res.status(500).json({ 
+        message: "Failed to export contacts",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  app.post('/api/google-sheets/export/leads', async (req, res) => {
+    try {
+      const { GoogleSheetsService } = await import('./googleSheetsService');
+      const { spreadsheetId, sheetName } = req.body;
+      
+      const service = new GoogleSheetsService({
+        spreadsheetId,
+        contactsSheetName: 'Contacts',
+        leadsSheetName: sheetName || 'Leads'
+      });
+      
+      const result = await service.exportLeads();
+      res.json(result);
+    } catch (error) {
+      console.error("Error exporting leads:", error);
+      res.status(500).json({ 
+        message: "Failed to export leads",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
