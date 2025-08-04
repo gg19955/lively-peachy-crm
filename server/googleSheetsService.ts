@@ -45,12 +45,12 @@ export class GoogleSheetsService {
 
           const contactData: InsertContact = {
             name: row[0] || '',
-            email: row[1] || '',
-            phone: row[2] || '',
+            email: row[1] || null,
+            phone: row[2] || null,
             type: (row[3] as any) || 'prospect',
             status: (row[4] as any) || 'active',
-            address: row[5] || '',
-            notes: row[6] || '',
+            address: row[5] || null,
+            notes: row[6] || null,
             googleSheetsId: row[7] || null, // Store Google Sheets row ID if available
           };
 
@@ -120,8 +120,8 @@ export class GoogleSheetsService {
           const leadData: InsertLead = {
             propertyAddress: row[0] || '',
             contactName: row[1] || '',
-            contactEmail: row[2] || '',
-            contactPhone: row[3] || '',
+            contactEmail: row[2] || null,
+            contactPhone: row[3] || null,
             stage: (row[4] as any) || 'inquiry',
             priority: (row[5] as any) || 'medium',
             estimatedValue: row[6] ? parseFloat(row[6]) : null,
