@@ -75,6 +75,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = "test-user-123"; // Mock user for testing
       const contactData = insertContactSchema.parse(req.body);
       const contact = await storage.createContact(contactData, userId);
+      
+      // Try to sync to Google Sheets (don't fail if this fails)
+      try {
+        const { GoogleSheetsService } = await import('./googleSheetsService');
+        if (process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY && process.env.GOOGLE_SHEETS_ID) {
+          const googleSheetsService = new GoogleSheetsService({
+            spreadsheetId: process.env.GOOGLE_SHEETS_ID,
+            contactsSheetName: 'Contacts',
+            leadsSheetName: 'Leads'
+          });
+          await googleSheetsService.exportContacts();
+          console.log("Contact synced to Google Sheets successfully");
+        }
+      } catch (syncError) {
+        console.warn("Failed to sync contact to Google Sheets:", syncError);
+        // Don't fail the request if Google Sheets sync fails
+      }
+      
       res.status(201).json(contact);
     } catch (error) {
       console.error("Error creating contact:", error);
