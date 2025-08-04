@@ -87,16 +87,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         const { GoogleSheetsService } = await import('./googleSheetsService');
         if (process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY && process.env.GOOGLE_SHEETS_ID) {
+          console.log("Starting Google Sheets sync for new contact...");
           const googleSheetsService = new GoogleSheetsService({
             spreadsheetId: process.env.GOOGLE_SHEETS_ID,
             contactsSheetName: 'Contacts',
             leadsSheetName: 'Leads'
           });
-          await googleSheetsService.exportContacts();
-          console.log("Contact synced to Google Sheets successfully");
+          const result = await googleSheetsService.exportContacts();
+          console.log(`Contact synced to Google Sheets successfully - exported ${result.exported} contacts`);
+        } else {
+          console.log("Google Sheets sync skipped - missing environment variables");
         }
       } catch (syncError) {
-        console.warn("Failed to sync contact to Google Sheets:", syncError);
+        console.error("Failed to sync contact to Google Sheets:", syncError);
         // Don't fail the request if Google Sheets sync fails
       }
       
@@ -114,6 +117,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const contactData = insertContactSchema.partial().parse(req.body);
       const contact = await storage.updateContact(req.params.id, contactData);
+      
+      // Try to sync to Google Sheets after update
+      try {
+        const { GoogleSheetsService } = await import('./googleSheetsService');
+        if (process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY && process.env.GOOGLE_SHEETS_ID) {
+          console.log("Syncing updated contact to Google Sheets...");
+          const googleSheetsService = new GoogleSheetsService({
+            spreadsheetId: process.env.GOOGLE_SHEETS_ID,
+            contactsSheetName: 'Contacts',
+            leadsSheetName: 'Leads'
+          });
+          await googleSheetsService.exportContacts();
+          console.log("Updated contact synced to Google Sheets successfully");
+        }
+      } catch (syncError) {
+        console.error("Failed to sync updated contact to Google Sheets:", syncError);
+      }
+      
       res.json(contact);
     } catch (error) {
       console.error("Error updating contact:", error);
@@ -127,6 +148,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete('/api/contacts/:id', isAuthenticated, async (req, res) => {
     try {
       await storage.deleteContact(req.params.id);
+      
+      // Try to sync to Google Sheets after deletion
+      try {
+        const { GoogleSheetsService } = await import('./googleSheetsService');
+        if (process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY && process.env.GOOGLE_SHEETS_ID) {
+          console.log("Syncing after contact deletion to Google Sheets...");
+          const googleSheetsService = new GoogleSheetsService({
+            spreadsheetId: process.env.GOOGLE_SHEETS_ID,
+            contactsSheetName: 'Contacts',
+            leadsSheetName: 'Leads'
+          });
+          await googleSheetsService.exportContacts();
+          console.log("Contact deletion synced to Google Sheets successfully");
+        }
+      } catch (syncError) {
+        console.error("Failed to sync contact deletion to Google Sheets:", syncError);
+      }
+      
       res.status(204).send();
     } catch (error) {
       console.error("Error deleting contact:", error);
@@ -200,6 +239,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = (req.user as any).claims.sub;
       const leadData = insertLeadSchema.parse(req.body);
       const lead = await storage.createLead(leadData, userId);
+      
+      // Try to sync to Google Sheets (don't fail if this fails)
+      try {
+        const { GoogleSheetsService } = await import('./googleSheetsService');
+        if (process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY && process.env.GOOGLE_SHEETS_ID) {
+          console.log("Starting Google Sheets sync for new lead...");
+          const googleSheetsService = new GoogleSheetsService({
+            spreadsheetId: process.env.GOOGLE_SHEETS_ID,
+            contactsSheetName: 'Contacts',
+            leadsSheetName: 'Leads'
+          });
+          const result = await googleSheetsService.exportLeads();
+          console.log(`Lead synced to Google Sheets successfully - exported ${result.exported} leads`);
+        }
+      } catch (syncError) {
+        console.error("Failed to sync lead to Google Sheets:", syncError);
+      }
+      
       res.status(201).json(lead);
     } catch (error) {
       console.error("Error creating lead:", error);
@@ -433,6 +490,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ 
         message: "Failed to export leads",
         error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Manual Google Sheets sync endpoint for testing
+  app.post('/api/sync/google-sheets', isAuthenticated, async (req, res) => {
+    try {
+      const { GoogleSheetsService } = await import('./googleSheetsService');
+      if (!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || !process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY || !process.env.GOOGLE_SHEETS_ID) {
+        return res.status(400).json({ 
+          success: false,
+          message: "Google Sheets credentials not configured"
+        });
+      }
+
+      console.log("Manual Google Sheets sync started...");
+      const googleSheetsService = new GoogleSheetsService({
+        spreadsheetId: process.env.GOOGLE_SHEETS_ID,
+        contactsSheetName: 'Contacts',
+        leadsSheetName: 'Leads'
+      });
+      
+      const contactsResult = await googleSheetsService.exportContacts();
+      const leadsResult = await googleSheetsService.exportLeads();
+      
+      console.log(`Manual sync completed - contacts: ${contactsResult.exported}, leads: ${leadsResult.exported}`);
+      res.json({
+        success: true,
+        message: "Google Sheets sync completed",
+        contactsExported: contactsResult.exported,
+        leadsExported: leadsResult.exported
+      });
+    } catch (error) {
+      console.error("Manual Google Sheets sync failed:", error);
+      res.status(500).json({ 
+        success: false,
+        message: error instanceof Error ? error.message : 'Unknown error'
       });
     }
   });
