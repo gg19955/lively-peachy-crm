@@ -48,14 +48,14 @@ export default function Sidebar() {
       <div className="p-4 border-t border-gray-200">
         <div className="flex items-center mb-3">
           <img
-            src={user?.profileImageUrl || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=64&h=64"}
+            src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=64&h=64"
             alt="User profile"
             className="w-10 h-10 rounded-full object-cover"
             data-testid="img-user-avatar"
           />
           <div className="ml-3 flex-1">
             <p className="text-sm font-medium text-gray-900" data-testid="text-user-name">
-              {user?.firstName} {user?.lastName}
+              Test User
             </p>
             <p className="text-xs text-gray-500">Property Manager</p>
           </div>

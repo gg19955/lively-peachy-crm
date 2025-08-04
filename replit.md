@@ -1,6 +1,6 @@
 # Overview
 
-PropertyCRM is a full-stack web application for property management and customer relationship management. The application enables property managers to track contacts, manage leads, and handle interactions with clients including tenants, landlords, vendors, and prospects. Built with modern web technologies, it features a React frontend with TypeScript, an Express.js backend, and PostgreSQL database integration.
+PropertyCRM is a full-stack web application for property management and customer relationship management. The application enables property managers to track contacts, manage leads, and handle interactions with clients including tenants, landlords, vendors, and prospects. Built with modern web technologies, it features a React frontend with TypeScript, an Express.js backend, PostgreSQL database integration, and Google Sheets synchronization capabilities.
 
 # User Preferences
 
