@@ -14,6 +14,7 @@ import { z } from "zod";
 
 const updateLeadSchema = insertLeadSchema.partial().extend({
   id: z.string(),
+  timeframe: z.string().optional(),
 });
 
 type UpdateLeadInput = z.infer<typeof updateLeadSchema>;
@@ -38,17 +39,40 @@ export default function EditLeadModal({ lead, open, onOpenChange }: EditLeadModa
       contactPhone: lead.contactPhone || "",
       stage: lead.stage,
       priority: lead.priority,
-      estimatedValue: lead.estimatedValue || undefined,
+      timeframe: lead.timeframe || "",
       notes: lead.notes || "",
     } : undefined,
   });
 
   const updateLeadMutation = useMutation({
-    mutationFn: (data: UpdateLeadInput) => apiRequest({
-      url: `/api/leads/${data.id}`,
-      method: "PATCH",
-      body: data,
-    }),
+    mutationFn: (data: UpdateLeadInput) => {
+      // Calculate reminder date based on timeframe
+      let reminderDate = null;
+      if (data.timeframe) {
+        const now = new Date();
+        switch (data.timeframe) {
+          case 'less_than_3_months':
+            reminderDate = new Date(now.getTime() + (2.5 * 30 * 24 * 60 * 60 * 1000)); // 2.5 months
+            break;
+          case '3_to_6_months':
+            reminderDate = new Date(now.getTime() + (5 * 30 * 24 * 60 * 60 * 1000)); // 5 months
+            break;
+          case '6_to_12_months':
+            reminderDate = new Date(now.getTime() + (10 * 30 * 24 * 60 * 60 * 1000)); // 10 months
+            break;
+          case 'select_date':
+            // User will need to set a specific date - for now, default to 1 month
+            reminderDate = new Date(now.getTime() + (30 * 24 * 60 * 60 * 1000));
+            break;
+        }
+      }
+      
+      return apiRequest({
+        url: `/api/leads/${data.id}`,
+        method: "PATCH",
+        body: { ...data, reminderDate },
+      });
+    },
     onSuccess: () => {
       toast({
         title: "Success",
@@ -163,14 +187,21 @@ export default function EditLeadModal({ lead, open, onOpenChange }: EditLeadModa
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="estimatedValue">Estimated Value</Label>
-              <Input
-                id="estimatedValue"
-                type="number"
-                {...form.register("estimatedValue", { valueAsNumber: true })}
-                placeholder="0"
-                data-testid="input-estimated-value"
-              />
+              <Label htmlFor="timeframe">Timeframe</Label>
+              <Select
+                value={form.watch("timeframe") || ""}
+                onValueChange={(value) => form.setValue("timeframe", value)}
+              >
+                <SelectTrigger data-testid="select-timeframe">
+                  <SelectValue placeholder="Select timeframe" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="select_date">Select date</SelectItem>
+                  <SelectItem value="less_than_3_months">Less than 3 months</SelectItem>
+                  <SelectItem value="3_to_6_months">3-6 Months</SelectItem>
+                  <SelectItem value="6_to_12_months">6-12 Months</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

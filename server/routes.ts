@@ -217,6 +217,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch('/api/leads/:id', async (req, res) => {
+    try {
+      const leadData = insertLeadSchema.partial().parse(req.body);
+      const lead = await storage.updateLead(req.params.id, leadData);
+      res.json(lead);
+    } catch (error) {
+      console.error("Error updating lead:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Validation error", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to update lead" });
+    }
+  });
+
   app.delete('/api/leads/:id', async (req, res) => {
     try {
       await storage.deleteLead(req.params.id);

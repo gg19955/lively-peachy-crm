@@ -73,7 +73,8 @@ export const leads = pgTable("leads", {
   contactName: varchar("contact_name"),
   contactEmail: varchar("contact_email"),
   contactPhone: varchar("contact_phone"),
-  estimatedValue: integer("estimated_value"),
+  timeframe: varchar("timeframe"), // select_date, less_than_3_months, 3_to_6_months, 6_to_12_months
+  reminderDate: timestamp("reminder_date"),
   notes: text("notes"),
   attachments: text("attachments").array(), // Array of file paths
   airtableId: varchar("airtable_id").unique(),
