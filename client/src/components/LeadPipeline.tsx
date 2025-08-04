@@ -1,0 +1,239 @@
+import { useQuery } from "@tanstack/react-query";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Plus } from "lucide-react";
+import { useState } from "react";
+import { Lead } from "@shared/schema";
+import { isUnauthorizedError } from "@/lib/authUtils";
+import { useToast } from "@/hooks/use-toast";
+import AddLeadModal from "./AddLeadModal";
+
+const stageColors = {
+  new: "bg-blue-50 border-blue-200 text-blue-900",
+  contacted: "bg-yellow-50 border-yellow-200 text-yellow-900", 
+  qualified: "bg-orange-50 border-orange-200 text-orange-900",
+  viewing_scheduled: "bg-purple-50 border-purple-200 text-purple-900",
+  application_submitted: "bg-indigo-50 border-indigo-200 text-indigo-900",
+  approved: "bg-green-50 border-green-200 text-green-900",
+  closed_won: "bg-emerald-50 border-emerald-200 text-emerald-900",
+  closed_lost: "bg-gray-50 border-gray-200 text-gray-900",
+};
+
+const stageLabels = {
+  new: "New Leads",
+  contacted: "Contacted", 
+  qualified: "Qualified",
+  viewing_scheduled: "Viewing Scheduled",
+  application_submitted: "Application Submitted",
+  approved: "Approved",
+  closed_won: "Closed Won",
+  closed_lost: "Closed Lost",
+};
+
+export default function LeadPipeline() {
+  const { toast } = useToast();
+  const [showAddLead, setShowAddLead] = useState(false);
+
+  const { data: leads, isLoading } = useQuery({
+    queryKey: ["/api/leads"],
+    onError: (error: Error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+    },
+  });
+
+  const { data: leadsByStage } = useQuery({
+    queryKey: ["/api/leads/by-stage"],
+    onError: (error: Error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Unauthorized", 
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+    },
+  });
+
+  const getLeadsByStage = (stage: string) => {
+    return leads?.filter((lead: Lead) => lead.leadStage === stage) || [];
+  };
+
+  const getStageCount = (stage: string) => {
+    return leadsByStage?.find((item: any) => item.stage === stage)?.count || 0;
+  };
+
+  const mainStages = ["new", "qualified", "closed_won"];
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>Property Leads</CardTitle>
+            <Button onClick={() => setShowAddLead(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add New Lead
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <h4 className="text-sm font-medium text-gray-900 mb-4">Lead Pipeline</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="bg-gray-50 rounded-lg p-4 border border-gray-200 animate-pulse">
+                    <div className="h-6 bg-gray-200 rounded mb-3"></div>
+                    <div className="space-y-3">
+                      {[...Array(2)].map((_, j) => (
+                        <div key={j} className="h-16 bg-gray-200 rounded"></div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div className="h-6 bg-gray-200 rounded mb-4"></div>
+              <div className="space-y-3">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="h-16 bg-gray-200 rounded"></div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>Property Leads</CardTitle>
+            <Button 
+              onClick={() => setShowAddLead(true)}
+              data-testid="button-add-lead"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add New Lead
+            </Button>
+          </div>
+        </CardHeader>
+        
+        <CardContent>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Lead Pipeline */}
+            <div className="lg:col-span-2">
+              <h4 className="text-sm font-medium text-gray-900 mb-4">Lead Pipeline</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {mainStages.map((stage) => {
+                  const stageLeads = getLeadsByStage(stage);
+                  const count = getStageCount(stage);
+                  
+                  return (
+                    <div 
+                      key={stage}
+                      className={`rounded-lg p-4 border ${stageColors[stage as keyof typeof stageColors]}`}
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <h5 className="text-sm font-medium">
+                          {stageLabels[stage as keyof typeof stageLabels]}
+                        </h5>
+                        <Badge variant="secondary" className="text-xs">
+                          {count}
+                        </Badge>
+                      </div>
+                      <div className="space-y-3">
+                        {stageLeads.length === 0 ? (
+                          <div className="text-xs text-gray-500 text-center py-4">
+                            No leads in this stage
+                          </div>
+                        ) : (
+                          stageLeads.slice(0, 3).map((lead: Lead) => (
+                            <div 
+                              key={lead.id}
+                              className="bg-white rounded-lg p-3 border border-gray-100 cursor-pointer hover:shadow-sm transition-shadow"
+                              data-testid={`card-lead-${lead.id}`}
+                            >
+                              <p className="text-sm font-medium text-gray-900">
+                                {lead.propertyType ? `${lead.propertyType.charAt(0).toUpperCase() + lead.propertyType.slice(1)} Property` : "Property Inquiry"}
+                              </p>
+                              <p className="text-xs text-gray-500" data-testid={`text-lead-contact-${lead.id}`}>
+                                {lead.contactName}
+                              </p>
+                              <p className="text-xs text-gray-400">
+                                {lead.leadSource || "Unknown source"}
+                              </p>
+                            </div>
+                          ))
+                        )}
+                        {stageLeads.length > 3 && (
+                          <div className="text-xs text-gray-500 text-center">
+                            +{stageLeads.length - 3} more
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            
+            {/* Recent Activity */}
+            <div>
+              <h4 className="text-sm font-medium text-gray-900 mb-4">Recent Activity</h4>
+              <div className="space-y-3">
+                {leads && leads.length > 0 ? (
+                  leads.slice(0, 5).map((lead: Lead) => (
+                    <div 
+                      key={lead.id}
+                      className="border border-gray-200 rounded-lg p-3"
+                      data-testid={`activity-lead-${lead.id}`}
+                    >
+                      <p className="text-sm font-medium text-gray-900">
+                        New lead inquiry
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {lead.propertyType} inquiry from {lead.leadSource}
+                      </p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        {new Date(lead.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center text-gray-500 py-8">
+                    <p className="text-sm">No recent activity</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <AddLeadModal
+        open={showAddLead}
+        onOpenChange={setShowAddLead}
+      />
+    </>
+  );
+}
