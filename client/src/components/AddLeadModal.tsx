@@ -444,31 +444,36 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                   )}
                 />
                 
-                <div>
-                  <Label className="text-sm font-medium text-gray-700 mb-2 block">Attachments</Label>
-                  <ObjectUploader
-                    maxNumberOfFiles={5}
-                    maxFileSize={26214400}
-                    onGetUploadParameters={handleGetUploadParameters}
-                    onComplete={handleUploadComplete}
-                    buttonClassName="w-full border-2 border-dashed border-gray-300 rounded-lg px-6 py-4 text-center hover:border-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <div className="flex flex-col items-center">
-                      <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      <div className="mt-2">
-                        <p className="text-sm text-gray-600">Click to upload files</p>
-                        <p className="text-xs text-gray-500">PDF, DOC, or images up to 25MB</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+                  <div>
+                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Attachments</Label>
+                    <ObjectUploader
+                      maxNumberOfFiles={5}
+                      maxFileSize={26214400}
+                      onGetUploadParameters={handleGetUploadParameters}
+                      onComplete={handleUploadComplete}
+                      buttonClassName="w-full border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 text-center hover:border-gray-400 dark:hover:border-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                    >
+                      <div className="flex items-center justify-center space-x-2">
+                        <svg className="h-5 w-5 text-gray-400 dark:text-gray-500" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">Upload Files</span>
                       </div>
-                    </div>
-                  </ObjectUploader>
+                    </ObjectUploader>
+                    
+                    {attachments.length > 0 && (
+                      <div className="mt-2">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{attachments.length} file(s) uploaded</p>
+                      </div>
+                    )}
+                  </div>
                   
-                  {attachments.length > 0 && (
-                    <div className="mt-2">
-                      <p className="text-xs text-gray-500">{attachments.length} file(s) uploaded</p>
-                    </div>
-                  )}
+                  <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
+                    <p>• Maximum 5 files</p>
+                    <p>• PDF, DOC, or images</p>
+                    <p>• Up to 25MB each</p>
+                  </div>
                 </div>
               </div>
             </div>
