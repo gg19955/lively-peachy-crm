@@ -165,36 +165,7 @@ export default function LeadPipeline() {
                 })}
               </div>
             </div>
-            
-            {/* Recent Activity */}
-            <div>
-              <h4 className="text-sm font-medium text-gray-900 mb-4">Recent Activity</h4>
-              <div className="space-y-3">
-                {leads && leads.length > 0 ? (
-                  leads.slice(0, 5).map((lead: Lead) => (
-                    <div 
-                      key={lead.id}
-                      className="border border-gray-200 rounded-lg p-3"
-                      data-testid={`activity-lead-${lead.id}`}
-                    >
-                      <p className="text-sm font-medium text-gray-900">
-                        New lead inquiry
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1">
-                        inquiry from {lead.contactName || "Unknown contact"}
-                      </p>
-                      <p className="text-xs text-gray-400 mt-1">
-                        {lead.createdAt ? new Date(lead.createdAt).toLocaleDateString() : "Date unknown"}
-                      </p>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center text-gray-500 py-8">
-                    <p className="text-sm">No recent activity</p>
-                  </div>
-                )}
-              </div>
-            </div>
+
           </div>
         </CardContent>
       </Card>
