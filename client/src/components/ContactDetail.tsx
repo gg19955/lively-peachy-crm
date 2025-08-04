@@ -7,6 +7,7 @@ import { Interaction, User, type Contact } from "@shared/schema";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { useToast } from "@/hooks/use-toast";
 import AddInteractionModal from "./AddInteractionModal";
+import EditContactModal from "./EditContactModal";
 
 interface ContactDetailProps {
   contactId: string | null;
@@ -15,6 +16,7 @@ interface ContactDetailProps {
 export default function ContactDetail({ contactId }: ContactDetailProps) {
   const { toast } = useToast();
   const [showAddNote, setShowAddNote] = useState(false);
+  const [showEditContact, setShowEditContact] = useState(false);
 
   const { data: contact } = useQuery<Contact>({
     queryKey: ["/api/contacts", contactId],
@@ -73,7 +75,12 @@ export default function ContactDetail({ contactId }: ContactDetailProps) {
           <div className="flex items-center justify-between">
             <CardTitle>Contact Details</CardTitle>
             <div className="flex items-center space-x-2">
-              <Button variant="outline" size="sm" data-testid="button-edit-contact">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setShowEditContact(true)}
+                data-testid="button-edit-contact"
+              >
                 <Edit className="w-4 h-4 mr-1" />
                 Edit
               </Button>
@@ -99,21 +106,21 @@ export default function ContactDetail({ contactId }: ContactDetailProps) {
                   </span>
                 </div>
                 <div className="flex-1">
-                  <h4 className="text-xl font-semibold text-gray-900" data-testid="text-contact-detail-name">
+                  <h4 className="text-xl font-semibold text-gray-900 dark:text-gray-100" data-testid="text-contact-detail-name">
                     {contact.name}
                   </h4>
-                  <p className="text-gray-600" data-testid="text-contact-detail-company">
+                  <p className="text-gray-600 dark:text-gray-400" data-testid="text-contact-detail-company">
                     {contact.company || "No company"}
                   </p>
                   <div className="mt-2 space-y-1">
                     {contact.email && (
-                      <div className="flex items-center text-sm text-gray-500">
+                      <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
                         <Mail className="w-4 h-4 mr-2" />
                         <span data-testid="text-contact-detail-email">{contact.email}</span>
                       </div>
                     )}
                     {contact.phone && (
-                      <div className="flex items-center text-sm text-gray-500">
+                      <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
                         <Phone className="w-4 h-4 mr-2" />
                         <span data-testid="text-contact-detail-phone">{contact.phone}</span>
                       </div>
@@ -124,16 +131,16 @@ export default function ContactDetail({ contactId }: ContactDetailProps) {
               
               {/* Timeline */}
               <div>
-                <h5 className="text-sm font-medium text-gray-900 mb-4">Interaction Timeline</h5>
+                <h5 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-4">Interaction Timeline</h5>
                 
                 {interactionsLoading ? (
                   <div className="space-y-4">
                     {[...Array(3)].map((_, i) => (
                       <div key={i} className="flex space-x-3 animate-pulse">
-                        <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+                        <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
                         <div className="flex-1">
-                          <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                          <div className="h-3 bg-gray-200 rounded"></div>
+                          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+                          <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded"></div>
                         </div>
                       </div>
                     ))}
@@ -197,6 +204,12 @@ export default function ContactDetail({ contactId }: ContactDetailProps) {
         open={showAddNote}
         onOpenChange={setShowAddNote}
         contactId={contactId}
+      />
+      
+      <EditContactModal
+        open={showEditContact}
+        onOpenChange={setShowEditContact}
+        contact={contact}
       />
     </>
   );
