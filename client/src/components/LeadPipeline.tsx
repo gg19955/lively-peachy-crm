@@ -149,7 +149,7 @@ export default function LeadPipeline() {
                                 {lead.contactName || "No contact name"}
                               </p>
                               <p className="text-xs text-gray-400">
-                                ${lead.estimatedValue ? lead.estimatedValue.toLocaleString() : "Value TBD"}
+                                {lead.timeframe ? lead.timeframe.replace(/_/g, ' ').replace(/^./, str => str.toUpperCase()) : "Timeframe TBD"}
                               </p>
                             </div>
                           ))
