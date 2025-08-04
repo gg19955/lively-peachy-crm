@@ -128,7 +128,7 @@ export default function LeadListView() {
                   </TableRow>
                 ) : (
                   filteredLeads.map((lead) => (
-                    <TableRow key={lead.id} className="hover:bg-gray-50">
+                    <TableRow key={lead.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                       <TableCell>
                         <div className="flex items-center space-x-2">
                           <MapPin className="h-4 w-4 text-gray-400" />
