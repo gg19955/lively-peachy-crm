@@ -273,6 +273,13 @@ export class GoogleSheetsService {
         };
       }
       
+      if (errorMessage.includes('Requested entity was not found')) {
+        return {
+          success: false,
+          message: 'Spreadsheet not found. Please verify: 1) The spreadsheet ID is correct, 2) The service account has been shared with the spreadsheet (add the service account email as an editor), 3) Google Sheets API is enabled in your Google Cloud project.'
+        };
+      }
+      
       return {
         success: false,
         message: `Connection failed: ${errorMessage}`
