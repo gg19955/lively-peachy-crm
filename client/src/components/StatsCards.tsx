@@ -15,13 +15,13 @@ export default function StatsCards() {
     return (
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         {[...Array(4)].map((_, i) => (
-          <Card key={i} className="animate-pulse">
+          <Card key={i} className="animate-pulse bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
             <CardContent className="p-6">
               <div className="flex items-center">
-                <div className="p-2 bg-gray-200 dark:bg-gray-700 rounded-lg w-10 h-10"></div>
+                <div className="p-2 bg-gray-200 dark:bg-gray-600 rounded-lg w-10 h-10"></div>
                 <div className="ml-4 flex-1">
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
-                  <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded mb-2"></div>
+                  <div className="h-6 bg-gray-200 dark:bg-gray-600 rounded"></div>
                 </div>
               </div>
             </CardContent>
@@ -59,23 +59,23 @@ export default function StatsCards() {
   ];
 
   const colorClasses = {
-    blue: "bg-blue-100 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400",
-    green: "bg-green-100 text-green-600 dark:bg-green-900/20 dark:text-green-400",
-    yellow: "bg-yellow-100 text-yellow-600 dark:bg-yellow-900/20 dark:text-yellow-400",
-    purple: "bg-purple-100 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400",
+    blue: "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400",
+    green: "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400",
+    yellow: "bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400",
+    purple: "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400",
   };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
       {statsData.map((stat) => (
-        <Card key={stat.title}>
+        <Card key={stat.title} className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm dark:shadow-lg">
           <CardContent className="p-6">
             <div className="flex items-center">
               <div className={`p-2 rounded-lg ${colorClasses[stat.color]}`}>
                 <stat.icon className="w-6 h-6" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{stat.title}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-300">{stat.title}</p>
                 <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100" data-testid={`text-${stat.title.toLowerCase().replace(' ', '-')}`}>
                   {stat.value.toLocaleString()}
                 </p>
