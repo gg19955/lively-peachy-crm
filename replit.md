@@ -9,6 +9,8 @@ PropertyCRM is a full-stack web application for property management and customer
 - ✅ **Service Account Setup**: Successfully configured with managehub@property-management-dash.iam.gserviceaccount.com
 - ✅ **Database Import Completed**: Successfully imported 113 contacts from user's Google Sheets database
 - ✅ **Dashboard Optimization**: Recent contacts card now shows only 5 most recently active contacts
+- ✅ **Contact Pagination Fixed**: Working Previous/Next buttons with proper page state management
+- ✅ **Google OAuth Integration**: Dual authentication system supporting both Google OAuth and Replit Auth
 
 # User Preferences
 
@@ -43,8 +45,13 @@ Preferred communication style: Simple, everyday language.
 - **Schema Location**: Centralized in `/shared/schema.ts` for type sharing between frontend and backend
 
 ## Authentication & Authorization
-- **Provider**: Replit Auth with OIDC (OpenID Connect)
+- **Primary Provider**: Replit Auth with OIDC (OpenID Connect)
+- **Secondary Provider**: Google OAuth 2.0 for team access
 - **Session Storage**: PostgreSQL-backed sessions with configurable TTL
+- **Dual Authentication Routes**:
+  - `/api/auth/google` - Google OAuth login flow
+  - `/api/login` - Replit Auth login flow
+  - `/api/logout` - Unified logout for both providers
 - **Access Control**: Custom object-level ACL system for file storage
 - **Security**: HTTP-only cookies, CSRF protection, and secure session configuration
 
