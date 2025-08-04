@@ -8,38 +8,32 @@ import { Lead } from "@shared/schema";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { useToast } from "@/hooks/use-toast";
 import AddLeadModal from "./AddLeadModal";
+import EditLeadModal from "./EditLeadModal";
 
 const stageColors = {
   inquiry: "bg-blue-50 border-blue-200 text-blue-900",
-  contacted: "bg-yellow-50 border-yellow-200 text-yellow-900", 
-  qualified: "bg-orange-50 border-orange-200 text-orange-900",
-  viewing_scheduled: "bg-purple-50 border-purple-200 text-purple-900",
-  application_submitted: "bg-indigo-50 border-indigo-200 text-indigo-900",
-  approved: "bg-green-50 border-green-200 text-green-900",
-  closed_won: "bg-emerald-50 border-emerald-200 text-emerald-900",
-  closed_lost: "bg-gray-50 border-gray-200 text-gray-900",
+  meeting_booked: "bg-yellow-50 border-yellow-200 text-yellow-900", 
+  signed: "bg-green-50 border-green-200 text-green-900",
+  closed: "bg-gray-50 border-gray-200 text-gray-900",
 };
 
 const stageLabels = {
   inquiry: "New Leads",
-  contacted: "Contacted", 
-  qualified: "Qualified",
-  viewing_scheduled: "Viewing Scheduled",
-  application_submitted: "Application Submitted",
-  approved: "Approved",
-  closed_won: "Closed Won",
-  closed_lost: "Closed Lost",
+  meeting_booked: "Meeting Booked", 
+  signed: "Signed",
+  closed: "Closed",
 };
 
 export default function LeadPipeline() {
   const { toast } = useToast();
   const [showAddLead, setShowAddLead] = useState(false);
+  const [editingLead, setEditingLead] = useState<Lead | null>(null);
 
   const { data: leads, isLoading } = useQuery<Lead[]>({
     queryKey: ["/api/leads"],
   });
 
-  const { data: leadsByStage } = useQuery({
+  const { data: leadsByStage } = useQuery<Array<{stage: string, count: number}>>({
     queryKey: ["/api/leads/by-stage"],
   });
 
@@ -51,7 +45,7 @@ export default function LeadPipeline() {
     return leadsByStage?.find((item: any) => item.stage === stage)?.count || 0;
   };
 
-  const mainStages = ["inquiry", "qualified", "closed_won"];
+  const mainStages = ["inquiry", "meeting_booked", "signed", "closed"];
 
   if (isLoading) {
     return (
@@ -117,7 +111,7 @@ export default function LeadPipeline() {
             {/* Lead Pipeline */}
             <div className="lg:col-span-2">
               <h4 className="text-sm font-medium text-gray-900 mb-4">Lead Pipeline</h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 {mainStages.map((stage) => {
                   const stageLeads = getLeadsByStage(stage);
                   const count = getStageCount(stage);
@@ -146,6 +140,7 @@ export default function LeadPipeline() {
                               key={lead.id}
                               className="bg-white rounded-lg p-3 border border-gray-100 cursor-pointer hover:shadow-sm transition-shadow"
                               data-testid={`card-lead-${lead.id}`}
+                              onClick={() => setEditingLead(lead)}
                             >
                               <p className="text-sm font-medium text-gray-900">
                                 {lead.propertyAddress || "Property Inquiry"}
@@ -207,6 +202,12 @@ export default function LeadPipeline() {
       <AddLeadModal
         open={showAddLead}
         onOpenChange={setShowAddLead}
+      />
+      
+      <EditLeadModal
+        lead={editingLead}
+        open={!!editingLead}
+        onOpenChange={(open: boolean) => !open && setEditingLead(null)}
       />
     </>
   );
