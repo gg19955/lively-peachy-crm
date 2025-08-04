@@ -12,12 +12,12 @@ import AddLeadModal from "./AddLeadModal";
 import EditLeadModal from "./EditLeadModal";
 
 const stageColors = {
-  inquiry: "bg-blue-50 border-blue-200 text-blue-900",
-  meeting_booked: "bg-yellow-50 border-yellow-200 text-yellow-900",
-  proposal_sent: "bg-orange-50 border-orange-200 text-orange-900",
-  contract_sent: "bg-purple-50 border-purple-200 text-purple-900", 
-  signed: "bg-green-50 border-green-200 text-green-900",
-  closed: "bg-gray-50 border-gray-200 text-gray-900",
+  inquiry: "bg-blue-50 border-blue-200 text-blue-900 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-300",
+  meeting_booked: "bg-yellow-50 border-yellow-200 text-yellow-900 dark:bg-yellow-900/20 dark:border-yellow-800 dark:text-yellow-300",
+  proposal_sent: "bg-orange-50 border-orange-200 text-orange-900 dark:bg-orange-900/20 dark:border-orange-800 dark:text-orange-300",
+  contract_sent: "bg-purple-50 border-purple-200 text-purple-900 dark:bg-purple-900/20 dark:border-purple-800 dark:text-purple-300", 
+  signed: "bg-green-50 border-green-200 text-green-900 dark:bg-green-900/20 dark:border-green-800 dark:text-green-300",
+  closed: "bg-gray-50 border-gray-200 text-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300",
 };
 
 const stageLabels = {
@@ -139,10 +139,10 @@ export default function LeadPipeline({ onToggleFeed }: LeadPipelineProps) {
           </div>
         </CardHeader>
         <CardContent>
-          <h4 className="text-sm font-medium text-gray-900 mb-4">Lead Pipeline</h4>
+          <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-4">Lead Pipeline</h4>
           <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-gray-50 rounded-lg p-4 border border-gray-200 animate-pulse">
+              <div key={i} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 animate-pulse">
                 <div className="h-6 bg-gray-200 rounded mb-3"></div>
                 <div className="space-y-3">
                   {[...Array(2)].map((_, j) => (
@@ -186,7 +186,7 @@ export default function LeadPipeline({ onToggleFeed }: LeadPipelineProps) {
         </CardHeader>
         
         <CardContent>
-          <h4 className="text-sm font-medium text-gray-900 mb-4">Lead Pipeline</h4>
+          <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-4">Lead Pipeline</h4>
           <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
                 {mainStages.map((stage) => {
                   const stageLeads = getLeadsByStage(stage);
@@ -215,14 +215,14 @@ export default function LeadPipeline({ onToggleFeed }: LeadPipelineProps) {
                         data-testid={`dropzone-${stage}`}
                       >
                         {stageLeads.length === 0 ? (
-                          <div className="text-xs text-gray-500 text-center py-8">
+                          <div className="text-xs text-gray-500 dark:text-gray-400 text-center py-8">
                             No leads in this stage
                           </div>
                         ) : (
                           stageLeads.slice(0, 3).map((lead: Lead) => (
                             <div 
                               key={lead.id}
-                              className={`bg-white rounded-lg p-3 border border-gray-100 cursor-move hover:shadow-sm transition-all duration-200 ${
+                              className={`bg-white dark:bg-gray-900 rounded-lg p-3 border border-gray-100 dark:border-gray-700 cursor-move hover:shadow-sm transition-all duration-200 ${
                                 draggedLead?.id === lead.id ? 'opacity-50 rotate-3 shadow-lg' : ''
                               }`}
                               data-testid={`card-lead-${lead.id}`}
@@ -231,20 +231,20 @@ export default function LeadPipeline({ onToggleFeed }: LeadPipelineProps) {
                               onDragEnd={handleDragEnd}
                               onClick={() => setEditingLead(lead)}
                             >
-                              <p className="text-sm font-medium text-gray-900">
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                 {lead.propertyAddress || "Property Inquiry"}
                               </p>
-                              <p className="text-xs text-gray-500" data-testid={`text-lead-contact-${lead.id}`}>
+                              <p className="text-xs text-gray-500 dark:text-gray-400" data-testid={`text-lead-contact-${lead.id}`}>
                                 {lead.contactName || "No contact name"}
                               </p>
-                              <p className="text-xs text-gray-400">
+                              <p className="text-xs text-gray-400 dark:text-gray-500">
                                 {lead.timeframe ? lead.timeframe.replace(/_/g, ' ').replace(/^./, str => str.toUpperCase()) : "Timeframe TBD"}
                               </p>
                             </div>
                           ))
                         )}
                         {stageLeads.length > 3 && (
-                          <div className="text-xs text-gray-500 text-center">
+                          <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
                             +{stageLeads.length - 3} more
                           </div>
                         )}

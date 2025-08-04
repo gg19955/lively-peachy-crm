@@ -26,25 +26,25 @@
 }
 
 .dark {
-  --background: hsl(240, 10%, 3.9%);
-  --foreground: hsl(0, 0%, 98%);
-  --muted: hsl(240, 3.7%, 15.9%);
-  --muted-foreground: hsl(240, 5%, 64.9%);
-  --popover: hsl(240, 10%, 3.9%);
-  --popover-foreground: hsl(0, 0%, 98%);
-  --card: hsl(240, 10%, 3.9%);
-  --card-foreground: hsl(0, 0%, 98%);
-  --border: hsl(240, 3.7%, 15.9%);
-  --input: hsl(240, 3.7%, 15.9%);
+  --background: hsl(210, 11%, 15%);
+  --foreground: hsl(213, 31%, 91%);
+  --muted: hsl(210, 11%, 21%);
+  --muted-foreground: hsl(215, 20.2%, 65.1%);
+  --popover: hsl(210, 11%, 15%);
+  --popover-foreground: hsl(213, 31%, 91%);
+  --card: hsl(210, 11%, 15%);
+  --card-foreground: hsl(213, 31%, 91%);
+  --border: hsl(210, 11%, 21%);
+  --input: hsl(210, 11%, 21%);
   --primary: hsl(207, 90%, 54%);
   --primary-foreground: hsl(211, 100%, 99%);
-  --secondary: hsl(240, 3.7%, 15.9%);
-  --secondary-foreground: hsl(0, 0%, 98%);
-  --accent: hsl(240, 3.7%, 15.9%);
-  --accent-foreground: hsl(0, 0%, 98%);
+  --secondary: hsl(210, 11%, 21%);
+  --secondary-foreground: hsl(213, 31%, 91%);
+  --accent: hsl(210, 11%, 21%);
+  --accent-foreground: hsl(213, 31%, 91%);
   --destructive: hsl(0, 62.8%, 30.6%);
   --destructive-foreground: hsl(0, 0%, 98%);
-  --ring: hsl(240, 4.9%, 83.9%);
+  --ring: hsl(207, 90%, 54%);
   --radius: 0.5rem;
 }
 
@@ -65,11 +65,11 @@
 }
 
 .sidebar-nav-item.active {
-  @apply bg-blue-50 text-blue-700 border border-blue-200;
+  @apply bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800;
 }
 
 .sidebar-nav-item:not(.active) {
-  @apply text-gray-600 hover:bg-gray-50;
+  @apply text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800/50;
 }
 
 .stats-card {

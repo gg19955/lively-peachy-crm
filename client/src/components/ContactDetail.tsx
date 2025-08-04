@@ -56,8 +56,8 @@ export default function ContactDetail({ contactId }: ContactDetailProps) {
     return (
       <Card>
         <CardContent className="flex items-center justify-center h-96">
-          <div className="text-center text-gray-500">
-            <MessageSquare className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+          <div className="text-center text-gray-500 dark:text-gray-400">
+            <MessageSquare className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
             <p>Select a contact to view details</p>
           </div>
         </CardContent>

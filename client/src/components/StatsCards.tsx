@@ -9,19 +9,6 @@ export default function StatsCards() {
 
   const { data: stats, isLoading } = useQuery({
     queryKey: ["/api/stats"],
-    onError: (error: Error) => {
-      if (isUnauthorizedError(error)) {
-        toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
-        return;
-      }
-    },
   });
 
   if (isLoading) {
@@ -47,35 +34,35 @@ export default function StatsCards() {
   const statsData = [
     {
       title: "Total Contacts",
-      value: stats?.totalContacts || 0,
+      value: (stats as any)?.totalContacts || 0,
       icon: Users,
-      color: "blue",
+      color: "blue" as const,
     },
     {
       title: "Active Leads",
-      value: stats?.activeLeads || 0,
+      value: (stats as any)?.activeLeads || 0,
       icon: Zap,
-      color: "green",
+      color: "green" as const,
     },
     {
       title: "Properties",
-      value: stats?.properties || 0,
+      value: (stats as any)?.properties || 0,
       icon: Building,
-      color: "yellow",
+      color: "yellow" as const,
     },
     {
       title: "This Month",
-      value: stats?.thisMonth || 0,
+      value: (stats as any)?.thisMonth || 0,
       icon: TrendingUp,
-      color: "purple",
+      color: "purple" as const,
     },
   ];
 
   const colorClasses = {
-    blue: "bg-blue-100 text-blue-600",
-    green: "bg-green-100 text-green-600",
-    yellow: "bg-yellow-100 text-yellow-600",
-    purple: "bg-purple-100 text-purple-600",
+    blue: "bg-blue-100 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400",
+    green: "bg-green-100 text-green-600 dark:bg-green-900/20 dark:text-green-400",
+    yellow: "bg-yellow-100 text-yellow-600 dark:bg-yellow-900/20 dark:text-yellow-400",
+    purple: "bg-purple-100 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400",
   };
 
   return (
@@ -88,8 +75,8 @@ export default function StatsCards() {
                 <stat.icon className="w-6 h-6" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                <p className="text-2xl font-semibold text-gray-900" data-testid={`text-${stat.title.toLowerCase().replace(' ', '-')}`}>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{stat.title}</p>
+                <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100" data-testid={`text-${stat.title.toLowerCase().replace(' ', '-')}`}>
                   {stat.value.toLocaleString()}
                 </p>
               </div>

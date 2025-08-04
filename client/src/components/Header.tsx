@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Plus } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { useState } from "react";
 import AddContactModal from "./AddContactModal";
 import AddLeadModal from "./AddLeadModal";
@@ -24,10 +25,10 @@ export default function Header({ title }: HeaderProps) {
 
   return (
     <>
-      <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+      <header className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700 px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <h2 className="text-2xl font-semibold text-gray-900" data-testid="text-page-title">
+            <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100" data-testid="text-page-title">
               {title}
             </h2>
           </div>
@@ -43,6 +44,7 @@ export default function Header({ title }: HeaderProps) {
                 data-testid="input-search"
               />
             </div>
+            <ThemeToggle />
             <Button
               onClick={handleAddClick}
               className="bg-blue-600 hover:bg-blue-700"
