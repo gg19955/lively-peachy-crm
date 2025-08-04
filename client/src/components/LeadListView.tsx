@@ -17,18 +17,18 @@ import { type Lead } from "@shared/schema";
 import EditLeadModal from "./EditLeadModal";
 
 const stageBadgeColors = {
-  inquiry: "bg-blue-100 text-blue-800 border-blue-200",
-  meeting_booked: "bg-yellow-100 text-yellow-800 border-yellow-200",
-  proposal_sent: "bg-orange-100 text-orange-800 border-orange-200",
-  contract_sent: "bg-purple-100 text-purple-800 border-purple-200",
-  signed: "bg-green-100 text-green-800 border-green-200",
-  closed: "bg-gray-100 text-gray-800 border-gray-200",
+  inquiry: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800",
+  meeting_booked: "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-300 dark:border-yellow-800",
+  proposal_sent: "bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-800",
+  contract_sent: "bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800",
+  signed: "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800",
+  closed: "bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600",
 };
 
 const priorityColors = {
-  low: "text-gray-500",
-  medium: "text-yellow-600",
-  high: "text-red-600",
+  low: "text-gray-500 dark:text-gray-400",
+  medium: "text-yellow-600 dark:text-yellow-400",
+  high: "text-red-600 dark:text-red-400",
 };
 
 export default function LeadListView() {

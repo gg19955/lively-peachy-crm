@@ -43,10 +43,10 @@ const activityIcons = {
 };
 
 const stageColors = {
-  inquiry: 'text-blue-600',
-  meeting_booked: 'text-yellow-600',
-  signed: 'text-green-600',
-  closed: 'text-gray-600',
+  inquiry: 'text-blue-600 dark:text-blue-400',
+  meeting_booked: 'text-yellow-600 dark:text-yellow-400',
+  signed: 'text-green-600 dark:text-green-400',
+  closed: 'text-gray-600 dark:text-gray-400',
 };
 
 export default function LeadFeed() {

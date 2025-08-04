@@ -17,10 +17,10 @@ export default function Sidebar() {
   const { user } = useAuth();
 
   return (
-    <div className="w-64 bg-white shadow-sm border-r border-gray-200 flex flex-col">
-      <div className="p-6 border-b border-gray-200">
-        <h1 className="text-xl font-bold text-gray-900" data-testid="text-app-title">PropertyCRM</h1>
-        <p className="text-sm text-gray-500 mt-1">Property Management</p>
+    <div className="w-64 bg-white dark:bg-gray-900 shadow-sm border-r border-gray-200 dark:border-gray-700 flex flex-col">
+      <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+        <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100" data-testid="text-app-title">PropertyCRM</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Property Management</p>
       </div>
       
       <nav className="flex-1 p-4 space-y-2">
@@ -32,8 +32,8 @@ export default function Sidebar() {
                 className={cn(
                   "flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer",
                   isActive
-                    ? "bg-blue-50 text-blue-700 border border-blue-200"
-                    : "text-gray-600 hover:bg-gray-50"
+                    ? "bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800"
+                    : "text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800/50"
                 )}
                 data-testid={`link-${item.name.toLowerCase()}`}
               >
@@ -45,7 +45,7 @@ export default function Sidebar() {
         })}
       </nav>
       
-      <div className="p-4 border-t border-gray-200">
+      <div className="p-4 border-t border-gray-200 dark:border-gray-700">
         <div className="flex items-center mb-3">
           <img
             src={(user as any)?.profileImageUrl || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=64&h=64"}
@@ -54,12 +54,12 @@ export default function Sidebar() {
             data-testid="img-user-avatar"
           />
           <div className="ml-3 flex-1">
-            <p className="text-sm font-medium text-gray-900" data-testid="text-user-name">
+            <p className="text-sm font-medium text-gray-900 dark:text-gray-100" data-testid="text-user-name">
               {(user as any)?.firstName && (user as any)?.lastName 
                 ? `${(user as any).firstName} ${(user as any).lastName}` 
                 : (user as any)?.email?.split('@')[0] || 'User'}
             </p>
-            <p className="text-xs text-gray-500">Property Manager</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Property Manager</p>
           </div>
         </div>
         <Button
