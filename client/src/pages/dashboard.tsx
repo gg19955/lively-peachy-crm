@@ -8,10 +8,12 @@ import ContactsList from "@/components/ContactsList";
 import ContactDetail from "@/components/ContactDetail";
 import LeadPipeline from "@/components/LeadPipeline";
 import { useState } from "react";
+import { useLocation } from "wouter";
 
 export default function Dashboard() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading } = useAuth();
+  const [, setLocation] = useLocation();
   const [selectedContactId, setSelectedContactId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -58,7 +60,7 @@ export default function Dashboard() {
               <ContactDetail contactId={selectedContactId} />
             </div>
 
-            <LeadPipeline />
+            <LeadPipeline onToggleFeed={() => setLocation("/leads?view=feed")} />
           </div>
         </main>
       </div>

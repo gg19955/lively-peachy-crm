@@ -14,7 +14,11 @@ type ViewMode = 'pipeline' | 'list' | 'feed';
 export default function LeadsPage() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading } = useAuth();
-  const [viewMode, setViewMode] = useState<ViewMode>('pipeline');
+  
+  // Check URL params for initial view mode
+  const urlParams = new URLSearchParams(window.location.search);
+  const initialView = urlParams.get('view') as ViewMode || 'pipeline';
+  const [viewMode, setViewMode] = useState<ViewMode>(initialView);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -85,7 +89,7 @@ export default function LeadsPage() {
             </div>
 
             {/* Render appropriate view based on mode */}
-            {viewMode === 'pipeline' && <LeadPipeline />}
+            {viewMode === 'pipeline' && <LeadPipeline onToggleFeed={() => setViewMode('feed')} />}
             {viewMode === 'list' && <LeadListView />}
             {viewMode === 'feed' && <LeadFeed />}
           </div>
