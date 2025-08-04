@@ -49,7 +49,7 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
       contactName: "",
       contactEmail: "",
       contactPhone: "",
-      propertyType: "residential",
+      propertyType: "house",
       stage: "inquiry",
       priority: "medium",
       timeframe: "",
@@ -298,10 +298,11 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="residential">Residential</SelectItem>
-                          <SelectItem value="commercial">Commercial</SelectItem>
-                          <SelectItem value="industrial">Industrial</SelectItem>
-                          <SelectItem value="land">Land</SelectItem>
+                          <SelectItem value="house">House</SelectItem>
+                          <SelectItem value="villa">Villa</SelectItem>
+                          <SelectItem value="apartment">Apartment</SelectItem>
+                          <SelectItem value="townhouse">Townhouse</SelectItem>
+                          <SelectItem value="the_lively_collection">The Lively Collection</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />

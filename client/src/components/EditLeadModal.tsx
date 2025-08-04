@@ -49,6 +49,7 @@ export default function EditLeadModal({ lead, open, onOpenChange }: EditLeadModa
       contactName: "",
       contactEmail: "",
       contactPhone: "",
+      propertyType: "house",
       priority: "medium",
       notes: "",
     },
@@ -65,6 +66,7 @@ export default function EditLeadModal({ lead, open, onOpenChange }: EditLeadModa
         contactName: lead.contactName || "",
         contactEmail: lead.contactEmail || "",
         contactPhone: lead.contactPhone || "",
+        propertyType: lead.propertyType || "house",
         priority: lead.priority || "medium",
         notes: lead.notes || "",
       });
@@ -257,6 +259,35 @@ export default function EditLeadModal({ lead, open, onOpenChange }: EditLeadModa
                         <SelectItem value="within_3_months">Within 3 Months</SelectItem>
                         <SelectItem value="within_6_months">Within 6 Months</SelectItem>
                         <SelectItem value="over_6_months">Over 6 Months</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="propertyType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Property Type</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      data-testid="select-property-type"
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="house">House</SelectItem>
+                        <SelectItem value="villa">Villa</SelectItem>
+                        <SelectItem value="apartment">Apartment</SelectItem>
+                        <SelectItem value="townhouse">Townhouse</SelectItem>
+                        <SelectItem value="the_lively_collection">The Lively Collection</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

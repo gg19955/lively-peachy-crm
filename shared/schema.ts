@@ -67,7 +67,7 @@ export const interactions = pgTable("interactions", {
 export const leads = pgTable("leads", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   propertyAddress: varchar("property_address").notNull(),
-  propertyType: varchar("property_type").default("residential"), // residential, commercial, industrial, land
+  propertyType: varchar("property_type").default("house"), // house, villa, apartment, townhouse, the_lively_collection
   stage: varchar("stage").default("inquiry"), // inquiry, meeting_booked, proposal_sent, contract_sent, signed, closed
   priority: varchar("priority").default("medium"), // low, medium, high
   contactName: varchar("contact_name"),
