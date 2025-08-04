@@ -20,22 +20,29 @@ function extractSpreadsheetId(input: string): string {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware - temporarily disabled for testing
-  // await setupAuth(app);
+  // Auth middleware
+  await setupAuth(app);
 
-  // Mock auth routes for testing
-  app.get('/api/auth/user', async (req: any, res) => {
-    // Return mock user for testing
-    res.json({ 
-      id: "test-user-123", 
-      email: "test@example.com", 
-      firstName: "Test", 
-      lastName: "User" 
-    });
+  // Auth routes
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = (req.user as any).claims.sub;
+      const user = await storage.getUser(userId);
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  // Protected route example
+  app.get("/api/protected", isAuthenticated, async (req, res) => {
+    const userId = (req.user as any)?.claims?.sub;
+    res.json({ message: "This is a protected route", userId });
   });
 
   // Stats endpoint
-  app.get('/api/stats', async (req, res) => {
+  app.get('/api/stats', isAuthenticated, async (req, res) => {
     try {
       const stats = await storage.getStats();
       res.json(stats);
@@ -46,7 +53,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Contact routes
-  app.get('/api/contacts', async (req, res) => {
+  app.get('/api/contacts', isAuthenticated, async (req, res) => {
     try {
       const searchTerm = req.query.search as string;
       const contacts = await storage.getContacts(searchTerm);
@@ -57,7 +64,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/contacts/:id', async (req, res) => {
+  app.get('/api/contacts/:id', isAuthenticated, async (req, res) => {
     try {
       const contact = await storage.getContact(req.params.id);
       if (!contact) {
@@ -70,9 +77,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/contacts', async (req: any, res) => {
+  app.post('/api/contacts', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = "test-user-123"; // Mock user for testing
+      const userId = (req.user as any).claims.sub;
       const contactData = insertContactSchema.parse(req.body);
       const contact = await storage.createContact(contactData, userId);
       
@@ -103,7 +110,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/contacts/:id', async (req, res) => {
+  app.put('/api/contacts/:id', isAuthenticated, async (req, res) => {
     try {
       const contactData = insertContactSchema.partial().parse(req.body);
       const contact = await storage.updateContact(req.params.id, contactData);
@@ -117,7 +124,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/contacts/:id', async (req, res) => {
+  app.delete('/api/contacts/:id', isAuthenticated, async (req, res) => {
     try {
       await storage.deleteContact(req.params.id);
       res.status(204).send();
@@ -128,7 +135,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Interaction routes
-  app.get('/api/contacts/:id/interactions', async (req, res) => {
+  app.get('/api/contacts/:id/interactions', isAuthenticated, async (req, res) => {
     try {
       const interactions = await storage.getContactInteractions(req.params.id);
       res.json(interactions);
@@ -138,9 +145,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/interactions', async (req: any, res) => {
+  app.post('/api/interactions', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = "test-user-123"; // Mock user for testing
+      const userId = (req.user as any).claims.sub;
       const interactionData = insertInteractionSchema.parse(req.body);
       const interaction = await storage.createInteraction(interactionData, userId);
       res.status(201).json(interaction);
@@ -154,7 +161,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Lead routes
-  app.get('/api/leads', async (req, res) => {
+  app.get('/api/leads', isAuthenticated, async (req, res) => {
     try {
       const stage = req.query.stage as string;
       const leads = await storage.getLeads(stage);
@@ -165,7 +172,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/leads/by-stage', async (req, res) => {
+  app.get('/api/leads/by-stage', isAuthenticated, async (req, res) => {
     try {
       const leadsByStage = await storage.getLeadsByStage();
       res.json(leadsByStage);
@@ -175,7 +182,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/leads/:id', async (req, res) => {
+  app.get('/api/leads/:id', isAuthenticated, async (req, res) => {
     try {
       const lead = await storage.getLead(req.params.id);
       if (!lead) {
@@ -188,9 +195,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/leads', async (req: any, res) => {
+  app.post('/api/leads', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = "test-user-123"; // Mock user for testing
+      const userId = (req.user as any).claims.sub;
       const leadData = insertLeadSchema.parse(req.body);
       const lead = await storage.createLead(leadData, userId);
       res.status(201).json(lead);
@@ -203,7 +210,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/leads/:id', async (req, res) => {
+  app.put('/api/leads/:id', isAuthenticated, async (req, res) => {
     try {
       const leadData = insertLeadSchema.partial().parse(req.body);
       const lead = await storage.updateLead(req.params.id, leadData);
@@ -217,7 +224,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch('/api/leads/:id', async (req, res) => {
+  app.patch('/api/leads/:id', isAuthenticated, async (req, res) => {
     try {
       const leadData = insertLeadSchema.partial().parse(req.body);
       const lead = await storage.updateLead(req.params.id, leadData);
@@ -231,7 +238,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/leads/:id', async (req, res) => {
+  app.delete('/api/leads/:id', isAuthenticated, async (req, res) => {
     try {
       await storage.deleteLead(req.params.id);
       res.status(204).send();
@@ -242,8 +249,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Object storage routes for file uploads
-  app.get("/objects/:objectPath(*)", async (req, res) => {
-    const userId = "test-user-123"; // Mock user for testing
+  app.get("/objects/:objectPath(*)", isAuthenticated, async (req: any, res) => {
+    const userId = (req.user as any).claims.sub;
     const objectStorageService = new ObjectStorageService();
     try {
       const objectFile = await objectStorageService.getObjectEntityFile(req.path);
@@ -265,18 +272,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/objects/upload", async (req, res) => {
+  app.post("/api/objects/upload", isAuthenticated, async (req, res) => {
     const objectStorageService = new ObjectStorageService();
     const uploadURL = await objectStorageService.getObjectEntityUploadURL();
     res.json({ uploadURL });
   });
 
-  app.put("/api/leads/:id/attachments", async (req, res) => {
+  app.put("/api/leads/:id/attachments", isAuthenticated, async (req: any, res) => {
     if (!req.body.attachmentURL) {
       return res.status(400).json({ error: "attachmentURL is required" });
     }
 
-    const userId = "test-user-123"; // Mock user for testing
+    const userId = (req.user as any).claims.sub;
 
     try {
       const objectStorageService = new ObjectStorageService();
@@ -309,7 +316,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Airtable integration endpoints
-  app.post('/api/airtable/sync', async (req, res) => {
+  app.post('/api/airtable/sync', isAuthenticated, async (req, res) => {
     try {
       const { airtableService } = await import('./airtableService');
       const result = await airtableService.performFullSync();
@@ -349,7 +356,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Import contacts from Airtable
-  app.post('/api/airtable/import/contacts', async (req, res) => {
+  app.post('/api/airtable/import/contacts', isAuthenticated, async (req, res) => {
     try {
       const { airtableService } = await import('./airtableService');
       const tableName = req.body.tableName || 'Contacts';
@@ -370,7 +377,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Import leads from Airtable
-  app.post('/api/airtable/import/leads', async (req, res) => {
+  app.post('/api/airtable/import/leads', isAuthenticated, async (req, res) => {
     try {
       const { airtableService } = await import('./airtableService');
       const tableName = req.body.tableName || 'Leads';
@@ -391,7 +398,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Export contacts to Airtable
-  app.post('/api/airtable/export/contacts', async (req, res) => {
+  app.post('/api/airtable/export/contacts', isAuthenticated, async (req, res) => {
     try {
       const { airtableService } = await import('./airtableService');
       const tableName = req.body.tableName || 'Contacts';
@@ -411,7 +418,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Export leads to Airtable
-  app.post('/api/airtable/export/leads', async (req, res) => {
+  app.post('/api/airtable/export/leads', isAuthenticated, async (req, res) => {
     try {
       const { airtableService } = await import('./airtableService');
       const tableName = req.body.tableName || 'Leads';
@@ -431,7 +438,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Google Sheets integration endpoints
-  app.post('/api/google-sheets/test', async (req, res) => {
+  app.post('/api/google-sheets/test', isAuthenticated, async (req, res) => {
     try {
       const { GoogleSheetsService } = await import('./googleSheetsService');
       const { spreadsheetId, contactsSheetName, leadsSheetName } = req.body;
@@ -453,7 +460,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/google-sheets/sync', async (req, res) => {
+  app.post('/api/google-sheets/sync', isAuthenticated, async (req, res) => {
     try {
       const { GoogleSheetsService } = await import('./googleSheetsService');
       const { spreadsheetId, contactsSheetName, leadsSheetName } = req.body;
@@ -475,7 +482,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/google-sheets/import/contacts', async (req, res) => {
+  app.post('/api/google-sheets/import/contacts', isAuthenticated, async (req, res) => {
     try {
       const { GoogleSheetsService } = await import('./googleSheetsService');
       const { spreadsheetId, sheetName } = req.body;
@@ -497,7 +504,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/google-sheets/import/leads', async (req, res) => {
+  app.post('/api/google-sheets/import/leads', isAuthenticated, async (req, res) => {
     try {
       const { GoogleSheetsService } = await import('./googleSheetsService');
       const { spreadsheetId, sheetName } = req.body;
@@ -519,7 +526,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/google-sheets/export/contacts', async (req, res) => {
+  app.post('/api/google-sheets/export/contacts', isAuthenticated, async (req, res) => {
     try {
       const { GoogleSheetsService } = await import('./googleSheetsService');
       const { spreadsheetId, sheetName } = req.body;
@@ -541,7 +548,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/google-sheets/export/leads', async (req, res) => {
+  app.post('/api/google-sheets/export/leads', isAuthenticated, async (req, res) => {
     try {
       const { GoogleSheetsService } = await import('./googleSheetsService');
       const { spreadsheetId, sheetName } = req.body;
