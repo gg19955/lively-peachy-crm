@@ -17,11 +17,7 @@ export default function Landing() {
             <p className="text-gray-300 dark:text-gray-200">Professional Property Management</p>
           </div>
 
-          <div className="mb-6">
-            <p className="text-sm text-gray-400 dark:text-gray-300 mb-4">
-              Streamline your property management workflow with our comprehensive CRM solution.
-            </p>
-          </div>
+
 
           <div className="space-y-3">
             <Button
