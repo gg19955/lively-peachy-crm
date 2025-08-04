@@ -13,6 +13,7 @@ import {
   type Lead,
   type InsertLead,
   type AirtableSyncLog,
+  type InsertAirtableSyncLog,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, or, ilike, sql } from "drizzle-orm";
@@ -50,7 +51,7 @@ export interface IStorage {
   }>;
 
   // Airtable sync operations
-  createSyncLog(log: Omit<AirtableSyncLog, 'id' | 'lastSyncAt'>): Promise<AirtableSyncLog>;
+  createSyncLog(log: InsertAirtableSyncLog): Promise<AirtableSyncLog>;
   updateSyncLog(id: string, updates: Partial<AirtableSyncLog>): Promise<void>;
 }
 
@@ -90,7 +91,7 @@ export class DatabaseStorage implements IStorage {
       );
     }
     
-    return query.orderBy(desc(contacts.updatedAt));
+    return await query.orderBy(desc(contacts.updatedAt));
   }
 
   async getContact(id: string): Promise<Contact | undefined> {
@@ -163,7 +164,7 @@ export class DatabaseStorage implements IStorage {
       query = query.where(eq(leads.leadStage, stage));
     }
     
-    return query.orderBy(desc(leads.createdAt));
+    return await query.orderBy(desc(leads.createdAt));
   }
 
   async getLead(id: string): Promise<Lead | undefined> {
@@ -251,7 +252,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Airtable sync operations
-  async createSyncLog(log: Omit<AirtableSyncLog, 'id' | 'lastSyncAt'>): Promise<AirtableSyncLog> {
+  async createSyncLog(log: InsertAirtableSyncLog): Promise<AirtableSyncLog> {
     const [syncLog] = await db
       .insert(airtableSyncLog)
       .values(log)

@@ -267,12 +267,122 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Airtable integration endpoints
   app.post('/api/airtable/sync', async (req, res) => {
     try {
-      // This would integrate with Airtable API
-      // For now, return a placeholder response
-      res.json({ message: "Airtable sync initiated" });
+      const { airtableService } = await import('./airtableService');
+      const result = await airtableService.performFullSync();
+      
+      // Log the sync operation
+      await storage.createSyncLog({
+        entityType: 'full_sync',
+        entityId: 'all',
+        syncStatus: 'success',
+        errorMessage: null,
+      });
+
+      res.json({
+        message: "Airtable sync completed successfully",
+        result: result
+      });
     } catch (error) {
       console.error("Error syncing with Airtable:", error);
-      res.status(500).json({ message: "Failed to sync with Airtable" });
+      
+      // Log the sync error
+      try {
+        await storage.createSyncLog({
+          entityType: 'full_sync',
+          entityId: 'all',
+          syncStatus: 'error',
+          errorMessage: error instanceof Error ? error.message : 'Unknown error',
+        });
+      } catch (logError) {
+        console.error("Failed to log sync error:", logError);
+      }
+
+      res.status(500).json({ 
+        message: "Failed to sync with Airtable",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Import contacts from Airtable
+  app.post('/api/airtable/import/contacts', async (req, res) => {
+    try {
+      const { airtableService } = await import('./airtableService');
+      const tableName = req.body.tableName || 'Contacts';
+      const result = await airtableService.syncContactsFromAirtable(tableName);
+      
+      res.json({
+        message: "Contacts imported successfully",
+        imported: result.imported,
+        updated: result.updated
+      });
+    } catch (error) {
+      console.error("Error importing contacts:", error);
+      res.status(500).json({ 
+        message: "Failed to import contacts",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Import leads from Airtable
+  app.post('/api/airtable/import/leads', async (req, res) => {
+    try {
+      const { airtableService } = await import('./airtableService');
+      const tableName = req.body.tableName || 'Leads';
+      const result = await airtableService.syncLeadsFromAirtable(tableName);
+      
+      res.json({
+        message: "Leads imported successfully",
+        imported: result.imported,
+        updated: result.updated
+      });
+    } catch (error) {
+      console.error("Error importing leads:", error);
+      res.status(500).json({ 
+        message: "Failed to import leads",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Export contacts to Airtable
+  app.post('/api/airtable/export/contacts', async (req, res) => {
+    try {
+      const { airtableService } = await import('./airtableService');
+      const tableName = req.body.tableName || 'Contacts';
+      const result = await airtableService.exportContactsToAirtable(tableName);
+      
+      res.json({
+        message: "Contacts exported successfully",
+        exported: result.exported
+      });
+    } catch (error) {
+      console.error("Error exporting contacts:", error);
+      res.status(500).json({ 
+        message: "Failed to export contacts",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Export leads to Airtable
+  app.post('/api/airtable/export/leads', async (req, res) => {
+    try {
+      const { airtableService } = await import('./airtableService');
+      const tableName = req.body.tableName || 'Leads';
+      const result = await airtableService.exportLeadsToAirtable(tableName);
+      
+      res.json({
+        message: "Leads exported successfully",
+        exported: result.exported
+      });
+    } catch (error) {
+      console.error("Error exporting leads:", error);
+      res.status(500).json({ 
+        message: "Failed to export leads",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   });
 
