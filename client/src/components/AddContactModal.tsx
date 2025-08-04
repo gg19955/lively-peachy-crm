@@ -29,7 +29,7 @@ export default function AddContactModal({ open, onOpenChange }: AddContactModalP
       email: "",
       phone: "",
       company: "",
-      contactType: "",
+      type: "",
     },
   });
 
@@ -160,7 +160,7 @@ export default function AddContactModal({ open, onOpenChange }: AddContactModalP
             
             <FormField
               control={form.control}
-              name="contactType"
+              name="type"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Contact Type</FormLabel>
