@@ -1,14 +1,15 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useState, DragEvent } from "react";
 import { Lead } from "@shared/schema";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import AddLeadModal from "./AddLeadModal";
-import EditLeadModal from "./EditLeadModal";
+// import EditLeadModal from "./EditLeadModal"; // TODO: Create EditLeadModal component
 
 const stageColors = {
   inquiry: "bg-blue-50 border-blue-200 text-blue-900",
@@ -26,8 +27,11 @@ const stageLabels = {
 
 export default function LeadPipeline() {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [showAddLead, setShowAddLead] = useState(false);
   const [editingLead, setEditingLead] = useState<Lead | null>(null);
+  const [draggedLead, setDraggedLead] = useState<Lead | null>(null);
+  const [dragOverStage, setDragOverStage] = useState<string | null>(null);
 
   const { data: leads, isLoading } = useQuery<Lead[]>({
     queryKey: ["/api/leads"],
@@ -35,6 +39,39 @@ export default function LeadPipeline() {
 
   const { data: leadsByStage } = useQuery<Array<{stage: string, count: number}>>({
     queryKey: ["/api/leads/by-stage"],
+  });
+
+  const updateLeadStageMutation = useMutation({
+    mutationFn: async ({ leadId, newStage }: { leadId: string; newStage: string }) => {
+      return await apiRequest(`/api/leads/${leadId}`, { method: "PUT", body: { stage: newStage } });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/leads/by-stage"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+      toast({
+        title: "Success",
+        description: "Lead stage updated successfully",
+      });
+    },
+    onError: (error: Error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Error",
+        description: "Failed to update lead stage",
+        variant: "destructive",
+      });
+    },
   });
 
   const getLeadsByStage = (stage: string) => {
@@ -46,6 +83,40 @@ export default function LeadPipeline() {
   };
 
   const mainStages = ["inquiry", "meeting_booked", "signed", "closed"];
+
+  // Drag and Drop handlers
+  const handleDragStart = (e: DragEvent<HTMLDivElement>, lead: Lead) => {
+    setDraggedLead(lead);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragEnd = () => {
+    setDraggedLead(null);
+    setDragOverStage(null);
+  };
+
+  const handleDragOver = (e: DragEvent<HTMLDivElement>, stage: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setDragOverStage(stage);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverStage(null);
+  };
+
+  const handleDrop = (e: DragEvent<HTMLDivElement>, targetStage: string) => {
+    e.preventDefault();
+    setDragOverStage(null);
+    
+    if (draggedLead && draggedLead.stage !== targetStage) {
+      updateLeadStageMutation.mutate({
+        leadId: draggedLead.id,
+        newStage: targetStage,
+      });
+    }
+    setDraggedLead(null);
+  };
 
   if (isLoading) {
     return (
@@ -119,7 +190,12 @@ export default function LeadPipeline() {
                   return (
                     <div 
                       key={stage}
-                      className={`rounded-lg p-4 border ${stageColors[stage as keyof typeof stageColors]}`}
+                      className={`rounded-lg p-4 border transition-all duration-200 ${stageColors[stage as keyof typeof stageColors]} ${
+                        dragOverStage === stage ? 'ring-2 ring-blue-400 ring-opacity-50 bg-blue-50' : ''
+                      }`}
+                      onDragOver={(e) => handleDragOver(e, stage)}
+                      onDragLeave={handleDragLeave}
+                      onDrop={(e) => handleDrop(e, stage)}
                     >
                       <div className="flex items-center justify-between mb-3">
                         <h5 className="text-sm font-medium">
@@ -129,17 +205,25 @@ export default function LeadPipeline() {
                           {count}
                         </Badge>
                       </div>
-                      <div className="space-y-3">
+                      <div 
+                        className="min-h-[100px] space-y-3"
+                        data-testid={`dropzone-${stage}`}
+                      >
                         {stageLeads.length === 0 ? (
-                          <div className="text-xs text-gray-500 text-center py-4">
+                          <div className="text-xs text-gray-500 text-center py-8">
                             No leads in this stage
                           </div>
                         ) : (
                           stageLeads.slice(0, 3).map((lead: Lead) => (
                             <div 
                               key={lead.id}
-                              className="bg-white rounded-lg p-3 border border-gray-100 cursor-pointer hover:shadow-sm transition-shadow"
+                              className={`bg-white rounded-lg p-3 border border-gray-100 cursor-move hover:shadow-sm transition-all duration-200 ${
+                                draggedLead?.id === lead.id ? 'opacity-50 rotate-3 shadow-lg' : ''
+                              }`}
                               data-testid={`card-lead-${lead.id}`}
+                              draggable
+                              onDragStart={(e) => handleDragStart(e, lead)}
+                              onDragEnd={handleDragEnd}
                               onClick={() => setEditingLead(lead)}
                             >
                               <p className="text-sm font-medium text-gray-900">
@@ -175,11 +259,7 @@ export default function LeadPipeline() {
         onOpenChange={setShowAddLead}
       />
       
-      <EditLeadModal
-        lead={editingLead}
-        open={!!editingLead}
-        onOpenChange={(open: boolean) => !open && setEditingLead(null)}
-      />
+      {/* TODO: Implement EditLeadModal component */}
     </>
   );
 }
