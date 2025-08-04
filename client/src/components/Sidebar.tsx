@@ -16,7 +16,7 @@ export default function Sidebar() {
   const { user } = useAuth();
 
   return (
-    <div className="w-64 bg-white dark:bg-gray-900 shadow-sm border-r border-gray-200 dark:border-gray-700 flex flex-col">
+    <div className="hidden lg:flex w-64 bg-white dark:bg-gray-900 shadow-sm border-r border-gray-200 dark:border-gray-700 flex-col h-full">
       <div className="p-6 border-b border-gray-200 dark:border-gray-700">
         <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100" data-testid="text-app-title">PropertyCRM</h1>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Property Management</p>

@@ -42,10 +42,8 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-950 lg:flex-row">
-      <div className="hidden lg:block">
-        <Sidebar />
-      </div>
+    <div className="flex h-screen bg-gray-50 dark:bg-gray-950">
+      <Sidebar />
       
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header title="Contact Management" />
