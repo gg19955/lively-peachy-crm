@@ -170,10 +170,13 @@ export default function AddContactModal({ open, onOpenChange }: AddContactModalP
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="tenant">Tenant</SelectItem>
-                      <SelectItem value="landlord">Landlord</SelectItem>
-                      <SelectItem value="vendor">Vendor</SelectItem>
-                      <SelectItem value="prospect">Prospect</SelectItem>
+                      <SelectItem value="real_estate_professional">Real Estate Professional</SelectItem>
+                      <SelectItem value="builder_developer">Builder / Developer</SelectItem>
+                      <SelectItem value="designer">Designer</SelectItem>
+                      <SelectItem value="business_owner">Business Owner</SelectItem>
+                      <SelectItem value="content_creator">Content Creator</SelectItem>
+                      <SelectItem value="guest">Guest</SelectItem>
+                      <SelectItem value="property_owner">Property Owner</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
