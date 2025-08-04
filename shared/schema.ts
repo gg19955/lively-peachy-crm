@@ -42,8 +42,11 @@ export const contacts = pgTable("contacts", {
   email: varchar("email"),
   phone: varchar("phone"),
   company: varchar("company"),
-  contactType: varchar("contact_type"), // Tenant, Landlord, Vendor, Prospect
-  status: varchar("status").default("active"), // active, inactive, follow-up
+  address: varchar("address"),
+  contactType: varchar("contact_type"), // tenant, landlord, vendor, prospect
+  status: varchar("status").default("pending"), // active, inactive, pending
+  notes: text("notes"),
+  airtableId: varchar("airtable_id").unique(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
   createdBy: varchar("created_by").references(() => users.id),
@@ -62,19 +65,17 @@ export const interactions = pgTable("interactions", {
 // Property leads
 export const leads = pgTable("leads", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  contactName: varchar("contact_name").notNull(),
-  contactEmail: varchar("contact_email").notNull(),
-  contactPhone: varchar("contact_phone"),
-  leadSource: varchar("lead_source"), // website, phone, referral, social_media, walk_in, online_ad
-  propertyType: varchar("property_type"), // apartment, house, condo, townhouse, commercial, office
-  bedrooms: varchar("bedrooms"),
-  bathrooms: varchar("bathrooms"),
-  budgetRange: varchar("budget_range"),
-  preferredLocation: varchar("preferred_location"),
-  leadStage: varchar("lead_stage").default("new"), // new, contacted, qualified, viewing_scheduled, application_submitted, approved, closed_won, closed_lost
+  propertyAddress: varchar("property_address").notNull(),
+  propertyType: varchar("property_type").default("residential"), // residential, commercial, industrial, land
+  leadStage: varchar("lead_stage").default("new"), // new, contacted, qualified, proposal, negotiation, closed, lost
   priority: varchar("priority").default("medium"), // low, medium, high, urgent
+  contactName: varchar("contact_name"),
+  contactEmail: varchar("contact_email"),
+  contactPhone: varchar("contact_phone"),
+  budget: varchar("budget"),
   notes: text("notes"),
   attachments: text("attachments").array(), // Array of file paths
+  airtableId: varchar("airtable_id").unique(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
   createdBy: varchar("created_by").references(() => users.id),
@@ -145,6 +146,11 @@ export const insertLeadSchema = createInsertSchema(leads).omit({
   createdBy: true,
 });
 
+export const insertAirtableSyncLogSchema = createInsertSchema(airtableSyncLog).omit({
+  id: true,
+  lastSyncAt: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -155,3 +161,4 @@ export type InsertInteraction = z.infer<typeof insertInteractionSchema>;
 export type Lead = typeof leads.$inferSelect;
 export type InsertLead = z.infer<typeof insertLeadSchema>;
 export type AirtableSyncLog = typeof airtableSyncLog.$inferSelect;
+export type InsertAirtableSyncLog = z.infer<typeof insertAirtableSyncLogSchema>;
