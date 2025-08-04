@@ -149,12 +149,12 @@ export default function GoogleSheetsPage() {
   });
 
   return (
-    <div className="flex h-screen bg-gray-50" data-testid="google-sheets-page">
+    <div className="flex h-screen bg-gray-50 dark:bg-gray-950" data-testid="google-sheets-page">
       <Sidebar />
       <main className="flex-1 p-6 overflow-auto">
         <div className="max-w-4xl mx-auto space-y-6">
           <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold text-gray-900" data-testid="page-title">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100" data-testid="page-title">
               Google Sheets Integration
             </h1>
             <Button
@@ -187,7 +187,7 @@ export default function GoogleSheetsPage() {
                   onChange={(e) => setSpreadsheetId(e.target.value)}
                   data-testid="input-spreadsheet-id"
                 />
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   Find this in your Google Sheets URL: https://docs.google.com/spreadsheets/d/[SPREADSHEET_ID]/
                 </p>
               </div>
