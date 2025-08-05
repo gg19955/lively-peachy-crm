@@ -56,6 +56,7 @@ export default function Dashboard() {
               <ContactsList 
                 onSelectContact={setSelectedContactId}
                 selectedContactId={selectedContactId}
+                contactsPerPage={5}
               />
               <div className="hidden xl:block">
                 <ContactDetail contactId={selectedContactId} />
