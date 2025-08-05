@@ -50,6 +50,7 @@ export default function ContactsPage() {
               <ContactsList 
                 onSelectContact={setSelectedContactId}
                 selectedContactId={selectedContactId}
+                contactsPerPage={25}
               />
               <ContactDetail contactId={selectedContactId} />
             </div>

@@ -13,14 +13,15 @@ import { cn } from "@/lib/utils";
 interface ContactsListProps {
   onSelectContact: (contactId: string | null) => void;
   selectedContactId: string | null;
+  contactsPerPage?: number;
 }
 
-export default function ContactsList({ onSelectContact, selectedContactId }: ContactsListProps) {
+export default function ContactsList({ onSelectContact, selectedContactId, contactsPerPage = 25 }: ContactsListProps) {
   const { toast } = useToast();
   const [contactType, setContactType] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
-  const CONTACTS_PER_PAGE = 25;
+  const CONTACTS_PER_PAGE = contactsPerPage;
   
   const { data: contacts, isLoading } = useQuery<Contact[]>({
     queryKey: ["/api/contacts"],
