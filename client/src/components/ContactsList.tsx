@@ -20,7 +20,7 @@ export default function ContactsList({ onSelectContact, selectedContactId }: Con
   const [contactType, setContactType] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
-  const CONTACTS_PER_PAGE = 5;
+  const CONTACTS_PER_PAGE = 25;
   
   const { data: contacts, isLoading } = useQuery<Contact[]>({
     queryKey: ["/api/contacts"],
