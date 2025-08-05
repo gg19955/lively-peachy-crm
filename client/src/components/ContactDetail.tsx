@@ -158,19 +158,19 @@ export default function ContactDetail({ contactId }: ContactDetailProps) {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
-                            <p className="text-sm font-medium text-gray-900 capitalize">
+                            <p className="text-sm font-medium text-gray-900 dark:text-white capitalize">
                               {interaction.type.replace('_', ' ')}
                             </p>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-gray-500 dark:text-gray-300">
                               {interaction.createdAt ? new Date(interaction.createdAt).toLocaleDateString() : 'No date'}
                             </p>
                           </div>
                           {interaction.notes && (
-                            <p className="text-sm text-gray-600 mt-1">
+                            <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
                               {interaction.notes}
                             </p>
                           )}
-                          <p className="text-xs text-gray-500 mt-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">
                             by {interaction.user.firstName} {interaction.user.lastName}
                           </p>
                         </div>
@@ -178,8 +178,8 @@ export default function ContactDetail({ contactId }: ContactDetailProps) {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center text-gray-500 py-8">
-                    <MessageSquare className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                  <div className="text-center text-gray-500 dark:text-gray-300 py-8">
+                    <MessageSquare className="w-8 h-8 mx-auto mb-2 text-gray-300 dark:text-gray-500" />
                     <p className="text-sm">No interactions recorded yet</p>
                   </div>
                 )}
