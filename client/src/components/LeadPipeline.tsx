@@ -219,7 +219,7 @@ export default function LeadPipeline({ onToggleFeed }: LeadPipelineProps) {
                         </Badge>
                       </div>
                       <div 
-                        className="min-h-[100px] space-y-3"
+                        className="min-h-[200px] space-y-3 max-h-[600px] overflow-y-auto"
                         data-testid={`dropzone-${stage}`}
                       >
                         {stageLeads.length === 0 ? (
@@ -227,7 +227,7 @@ export default function LeadPipeline({ onToggleFeed }: LeadPipelineProps) {
                             No leads in this stage
                           </div>
                         ) : (
-                          stageLeads.slice(0, 3).map((lead: Lead) => (
+                          stageLeads.map((lead: Lead) => (
                             <div 
                               key={lead.id}
                               className={`bg-white dark:bg-gray-900 rounded-lg p-3 border border-gray-100 dark:border-gray-700 cursor-move hover:shadow-sm transition-all duration-200 ${
@@ -250,11 +250,6 @@ export default function LeadPipeline({ onToggleFeed }: LeadPipelineProps) {
                               </p>
                             </div>
                           ))
-                        )}
-                        {stageLeads.length > 3 && (
-                          <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
-                            +{stageLeads.length - 3} more
-                          </div>
                         )}
                       </div>
                     </div>
