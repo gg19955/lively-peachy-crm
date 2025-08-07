@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FaGoogle } from "react-icons/fa";
-import logoImage from "@assets/CAPITAL ICONS (13)_1754335100278.png";
+import logoImage from "@assets/CAPITAL ICONS (13)_1754548082359.png";
 
 export default function Landing() {
   return (
