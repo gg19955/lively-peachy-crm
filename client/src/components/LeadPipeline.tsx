@@ -68,15 +68,16 @@ export default function LeadPipeline({ onToggleFeed }: LeadPipelineProps) {
       });
     },
     onError: (error: Error) => {
+      console.error("Lead stage update error:", error);
       if (isUnauthorizedError(error)) {
         toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
+          title: "Please Log In",
+          description: "You need to be logged in to move leads. Redirecting to login...",
           variant: "destructive",
         });
         setTimeout(() => {
           window.location.href = "/api/login";
-        }, 500);
+        }, 1000);
         return;
       }
       toast({
@@ -194,7 +195,12 @@ export default function LeadPipeline({ onToggleFeed }: LeadPipelineProps) {
         </CardHeader>
         
         <CardContent className="px-4 sm:px-6">
-          <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-4">Lead Pipeline</h4>
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">Lead Pipeline</h4>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              💡 Log in to drag leads between stages
+            </p>
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
                 {mainStages.map((stage) => {
                   const stageLeads = getLeadsByStage(stage);
