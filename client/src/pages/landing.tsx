@@ -14,7 +14,7 @@ export default function Landing() {
               alt="PropertyCRM Logo" 
               className="mx-auto h-16 w-16 mb-4"
             />
-            <p className="text-gray-300 dark:text-gray-200">Professional Property Management</p>
+            <p className="text-black dark:text-gray-200">Professional Property Management</p>
           </div>
 
 
