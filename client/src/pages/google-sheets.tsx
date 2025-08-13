@@ -19,7 +19,11 @@ export default function GoogleSheetsPage() {
   const [leadsSheetName, setLeadsSheetName] = useState("Leads");
 
   // Load Google Sheets configuration
-  const { data: config, isLoading: configLoading } = useQuery({
+  const { data: config, isLoading: configLoading } = useQuery<{
+    configured: boolean;
+    spreadsheetId: string | null;
+    serviceAccountEmail: string | null;
+  }>({
     queryKey: ["/api/google-sheets/config"],
     retry: false,
   });
@@ -273,6 +277,46 @@ export default function GoogleSheetsPage() {
                 <p className="text-sm text-green-700 dark:text-green-300 mt-2 text-center">
                   This will export your contacts and leads to your Google Sheet
                 </p>
+                <div className="mt-2 text-center">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => window.open(`https://docs.google.com/spreadsheets/d/${config.spreadsheetId}`, '_blank')}
+                    className="text-green-700 border-green-300 hover:bg-green-100 dark:text-green-300 dark:border-green-600"
+                  >
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    View Your Google Sheet
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Login Required Message */}
+          {!config && !configLoading && (
+            <Card className="border-2 border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-blue-800 dark:text-blue-200">
+                  🔐 Authentication Required
+                </CardTitle>
+                <CardDescription className="text-blue-700 dark:text-blue-300">
+                  Please log in to access Google Sheets integration
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={() => window.location.href = "/api/login"}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    Sign in with Replit
+                  </Button>
+                  <Button 
+                    onClick={() => window.location.href = "/api/auth/google"}
+                    className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                  >
+                    Sign in with Google
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           )}
