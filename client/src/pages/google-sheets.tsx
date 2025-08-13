@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,19 @@ export default function GoogleSheetsPage() {
   const [contactsSheetName, setContactsSheetName] = useState("Contacts");
   const [leadsSheetName, setLeadsSheetName] = useState("Leads");
 
+  // Load Google Sheets configuration
+  const { data: config, isLoading: configLoading } = useQuery({
+    queryKey: ["/api/google-sheets/config"],
+    retry: false,
+  });
+
+  // Set the spreadsheet ID from configuration when it loads
+  useEffect(() => {
+    if (config?.configured && config?.spreadsheetId && !spreadsheetId) {
+      setSpreadsheetId(config.spreadsheetId);
+    }
+  }, [config, spreadsheetId]);
+
   const testConnectionMutation = useMutation({
     mutationFn: () => apiRequest({ 
       url: "/api/google-sheets/test", 
@@ -34,6 +47,40 @@ export default function GoogleSheetsPage() {
     onError: (error) => {
       toast({
         title: "Connection Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Quick sync using pre-configured Google Sheets
+  const quickSyncMutation = useMutation({
+    mutationFn: () => apiRequest({ 
+      url: "/api/sync/google-sheets", 
+      method: "POST"
+    }),
+    onSuccess: (data) => {
+      toast({
+        title: "Sync Complete",
+        description: `Exported ${data.contactsExported} contacts and ${data.leadsExported} leads to your Google Sheet.`,
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/contacts"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Please Log In",
+          description: "You need to be logged in to sync data. Redirecting to login...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 1000);
+        return;
+      }
+      toast({
+        title: "Sync Failed",
         description: error.message,
         variant: "destructive",
       });
@@ -189,6 +236,46 @@ export default function GoogleSheetsPage() {
               Open Google Sheets
             </Button>
           </div>
+
+          {/* Quick Sync Section - Pre-configured */}
+          {config?.configured && (
+            <Card className="border-2 border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-green-800 dark:text-green-200">
+                  <RefreshCw className="h-5 w-5" />
+                  Your Google Sheet is Connected
+                </CardTitle>
+                <CardDescription className="text-green-700 dark:text-green-300">
+                  Connected to: {config.serviceAccountEmail}
+                  <br />
+                  Spreadsheet ID: {config.spreadsheetId}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button 
+                  onClick={() => quickSyncMutation.mutate()}
+                  disabled={quickSyncMutation.isPending}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white"
+                  data-testid="button-quick-sync"
+                >
+                  {quickSyncMutation.isPending ? (
+                    <>
+                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                      Syncing...
+                    </>
+                  ) : (
+                    <>
+                      <RefreshCw className="mr-2 h-4 w-4" />
+                      Sync Data to Your Google Sheet
+                    </>
+                  )}
+                </Button>
+                <p className="text-sm text-green-700 dark:text-green-300 mt-2 text-center">
+                  This will export your contacts and leads to your Google Sheet
+                </p>
+              </CardContent>
+            </Card>
+          )}
 
           <Card data-testid="card-configuration">
             <CardHeader>

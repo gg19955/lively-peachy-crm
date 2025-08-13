@@ -524,6 +524,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Manual Google Sheets sync endpoint for testing
+  // Get Google Sheets configuration status
+  app.get('/api/google-sheets/config', isAuthenticated, async (req, res) => {
+    try {
+      const isConfigured = !!(process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL && 
+                            process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY && 
+                            process.env.GOOGLE_SHEETS_ID);
+      
+      res.json({
+        configured: isConfigured,
+        spreadsheetId: process.env.GOOGLE_SHEETS_ID || null,
+        serviceAccountEmail: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || null
+      });
+    } catch (error) {
+      console.error("Error checking Google Sheets config:", error);
+      res.status(500).json({ message: "Failed to check configuration" });
+    }
+  });
+
   app.post('/api/sync/google-sheets', isAuthenticated, async (req, res) => {
     try {
       const { GoogleSheetsService } = await import('./googleSheetsService');
