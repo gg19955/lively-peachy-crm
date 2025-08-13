@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { isUnauthorizedError } from "@/lib/authUtils";
 import { Download, Upload, RefreshCw, TestTube, Settings, ExternalLink } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 
@@ -119,6 +120,17 @@ export default function GoogleSheetsPage() {
       });
     },
     onError: (error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Please Log In",
+          description: "You need to be logged in to export data. Redirecting to login...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 1000);
+        return;
+      }
       toast({
         title: "Export Failed",
         description: error.message,
@@ -140,6 +152,17 @@ export default function GoogleSheetsPage() {
       });
     },
     onError: (error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Please Log In",
+          description: "You need to be logged in to export data. Redirecting to login...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 1000);
+        return;
+      }
       toast({
         title: "Export Failed",
         description: error.message,

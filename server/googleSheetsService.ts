@@ -160,7 +160,7 @@ export class GoogleSheetsService {
             continue;
           }
 
-          // Map your sheet structure: Property Address | Contact Name | Contact Email | Contact Phone | Stage | Priority | Estimated Value | Notes | ID
+          // Map your sheet structure: Property Address | Contact Name | Contact Email | Contact Phone | Stage | Priority | Notes | ID
           const leadData: InsertLead = {
             propertyAddress: (row[0] || '').toString().trim(),
             contactName: row[1] && row[1].toString().trim() ? row[1].toString().trim() : null,
@@ -168,9 +168,8 @@ export class GoogleSheetsService {
             contactPhone: row[3] && row[3].toString().trim() ? row[3].toString().trim() : null,
             stage: row[4] && row[4].toString().trim() ? (row[4].toString().toLowerCase() as any) : 'inquiry',
             priority: row[5] && row[5].toString().trim() ? (row[5].toString().toLowerCase() as any) : 'medium',
-            estimatedValue: row[6] && row[6].toString().trim() ? parseFloat(row[6].toString().replace(/[^0-9.-]/g, '')) || null : null,
-            notes: row[7] && row[7].toString().trim() ? row[7].toString().trim() : null,
-            googleSheetsId: row[8] && row[8].toString().trim() ? row[8].toString().trim() : null,
+            notes: row[6] && row[6].toString().trim() ? row[6].toString().trim() : null,
+            googleSheetsId: row[7] && row[7].toString().trim() ? row[7].toString().trim() : null,
           };
 
           // Validate that we have a property address at minimum
@@ -196,7 +195,7 @@ export class GoogleSheetsService {
     try {
       const leads = await storage.getLeads();
       const values = [
-        ['Property Address', 'Contact Name', 'Contact Email', 'Contact Phone', 'Stage', 'Priority', 'Estimated Value', 'Notes', 'ID'] // Header row
+        ['Property Address', 'Contact Name', 'Contact Email', 'Contact Phone', 'Stage', 'Priority', 'Notes', 'ID'] // Header row
       ];
 
       for (const lead of leads) {
@@ -207,7 +206,6 @@ export class GoogleSheetsService {
           lead.contactPhone || '',
           lead.stage || '',
           lead.priority || '',
-          lead.estimatedValue?.toString() || '',
           lead.notes || '',
           lead.id
         ]);
@@ -215,7 +213,7 @@ export class GoogleSheetsService {
 
       await this.sheets.spreadsheets.values.update({
         spreadsheetId: this.config.spreadsheetId,
-        range: `${this.config.leadsSheetName}!A1:I`,
+        range: `${this.config.leadsSheetName}!A1:H`,
         valueInputOption: 'USER_ENTERED',
         requestBody: { values },
       });
