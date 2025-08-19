@@ -705,6 +705,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/google-sheets/sync', isAuthenticated, async (req, res) => {
     try {
+      console.log("Starting full sync with params:", req.body);
       const { GoogleSheetsService } = await import('./googleSheetsService');
       const { spreadsheetId, contactsSheetName, leadsSheetName } = req.body;
       
@@ -714,10 +715,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         leadsSheetName: leadsSheetName || 'Leads'
       });
       
+      console.log("About to perform full sync...");
       const result = await service.fullSync();
+      console.log("Full sync completed successfully:", result);
       res.json(result);
     } catch (error) {
       console.error("Error syncing with Google Sheets:", error);
+      console.error("Error stack:", error instanceof Error ? error.stack : 'No stack trace');
       res.status(500).json({ 
         message: "Failed to sync with Google Sheets",
         error: error instanceof Error ? error.message : 'Unknown error'
@@ -793,6 +797,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/google-sheets/export/leads', isAuthenticated, async (req, res) => {
     try {
+      console.log("Starting leads export with params:", req.body);
       const { GoogleSheetsService } = await import('./googleSheetsService');
       const { spreadsheetId, sheetName } = req.body;
       
@@ -802,10 +807,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         leadsSheetName: sheetName || 'Leads'
       });
       
+      console.log("About to export leads...");
       const result = await service.exportLeads();
+      console.log("Leads export completed successfully:", result);
       res.json(result);
     } catch (error) {
       console.error("Error exporting leads:", error);
+      console.error("Error stack:", error instanceof Error ? error.stack : 'No stack trace');
       res.status(500).json({ 
         message: "Failed to export leads",
         error: error instanceof Error ? error.message : 'Unknown error'
