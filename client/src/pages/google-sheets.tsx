@@ -91,6 +91,42 @@ export default function GoogleSheetsPage() {
     },
   });
 
+  // Setup/fix Google Sheets access
+  const setupMutation = useMutation({
+    mutationFn: () => apiRequest({ 
+      url: "/api/google-sheets/setup", 
+      method: "POST"
+    }),
+    onSuccess: (data) => {
+      toast({
+        title: data.success ? "Setup Complete" : "Setup Issue",
+        description: data.message,
+        variant: data.success ? "default" : "destructive",
+      });
+      if (data.success) {
+        queryClient.invalidateQueries({ queryKey: ["/api/google-sheets/config"] });
+      }
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Please Log In",
+          description: "You need to be logged in to setup Google Sheets. Redirecting to login...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 1000);
+        return;
+      }
+      toast({
+        title: "Setup Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const fullSyncMutation = useMutation({
     mutationFn: () => apiRequest({ 
       url: "/api/google-sheets/sync", 
@@ -277,14 +313,22 @@ export default function GoogleSheetsPage() {
                 <p className="text-sm text-green-700 dark:text-green-300 mt-2 text-center">
                   This will export your contacts and leads to your Google Sheet
                 </p>
-                <div className="mt-2 text-center">
+                <div className="mt-2 flex gap-2">
                   <Button 
                     variant="outline" 
                     onClick={() => window.open(`https://docs.google.com/spreadsheets/d/${config.spreadsheetId}`, '_blank')}
-                    className="text-green-700 border-green-300 hover:bg-green-100 dark:text-green-300 dark:border-green-600"
+                    className="flex-1 text-green-700 border-green-300 hover:bg-green-100 dark:text-green-300 dark:border-green-600"
                   >
                     <ExternalLink className="h-4 w-4 mr-2" />
-                    View Your Google Sheet
+                    View Google Sheet
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setupMutation.mutate()}
+                    disabled={setupMutation.isPending}
+                    className="flex-1 text-blue-700 border-blue-300 hover:bg-blue-100 dark:text-blue-300 dark:border-blue-600"
+                  >
+                    {setupMutation.isPending ? "Setting up..." : "Fix Access"}
                   </Button>
                 </div>
               </CardContent>
@@ -320,6 +364,50 @@ export default function GoogleSheetsPage() {
               </CardContent>
             </Card>
           )}
+
+          {/* Help Section for Google Sheets Access Issue */}
+          <Card className="border-2 border-yellow-200 dark:border-yellow-800 bg-yellow-50 dark:bg-yellow-950">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-yellow-800 dark:text-yellow-200">
+                🔧 Troubleshooting Google Sheets Access
+              </CardTitle>
+              <CardDescription className="text-yellow-700 dark:text-yellow-300">
+                If you're seeing "file does not exist" when trying to view your Google Sheet, here's how to fix it:
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="text-sm text-yellow-800 dark:text-yellow-200">
+                <h4 className="font-semibold mb-2">Step 1: Share your Google Sheet with the service account</h4>
+                <ol className="list-decimal list-inside space-y-1 ml-4">
+                  <li>Open your Google Sheet in a browser</li>
+                  <li>Click the "Share" button (top right)</li>
+                  <li>Add this email address as an Editor: <code className="bg-yellow-200 dark:bg-yellow-800 px-1 rounded">{config?.serviceAccountEmail}</code></li>
+                  <li>Make sure "Editor" permission is selected</li>
+                  <li>Click "Send" or "Done"</li>
+                </ol>
+              </div>
+              
+              <div className="flex gap-2">
+                <Button 
+                  onClick={() => setupMutation.mutate()}
+                  disabled={setupMutation.isPending}
+                  className="bg-yellow-600 hover:bg-yellow-700 text-white"
+                >
+                  {setupMutation.isPending ? "Testing..." : "Test & Fix Access"}
+                </Button>
+                {config?.spreadsheetId && (
+                  <Button 
+                    variant="outline" 
+                    onClick={() => window.open(`https://docs.google.com/spreadsheets/d/${config.spreadsheetId}`, '_blank')}
+                    className="text-yellow-700 border-yellow-300 hover:bg-yellow-100 dark:text-yellow-300 dark:border-yellow-600"
+                  >
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    Open Google Sheet
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
 
           <Card data-testid="card-configuration">
             <CardHeader>

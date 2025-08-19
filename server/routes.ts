@@ -559,6 +559,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         leadsSheetName: 'Leads'
       });
       
+      // First ensure the sheet structure exists
+      const structureResult = await googleSheetsService.ensureSheetStructure();
+      if (!structureResult.success) {
+        return res.status(500).json({ 
+          success: false,
+          message: structureResult.message
+        });
+      }
+      
       const contactsResult = await googleSheetsService.exportContacts();
       const leadsResult = await googleSheetsService.exportLeads();
       
@@ -571,6 +580,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       console.error("Manual Google Sheets sync failed:", error);
+      res.status(500).json({ 
+        success: false,
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Create or setup Google Sheet endpoint
+  app.post('/api/google-sheets/setup', isAuthenticated, async (req, res) => {
+    try {
+      const { GoogleSheetsService } = await import('./googleSheetsService');
+      
+      if (!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || !process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY || !process.env.GOOGLE_SHEETS_ID) {
+        return res.status(400).json({ 
+          success: false,
+          message: "Google Sheets credentials not configured in environment variables"
+        });
+      }
+
+      const service = new GoogleSheetsService({
+        spreadsheetId: process.env.GOOGLE_SHEETS_ID,
+        contactsSheetName: 'Contacts',
+        leadsSheetName: 'Leads'
+      });
+      
+      // First test connection
+      const connectionResult = await service.testConnection();
+      if (!connectionResult.success) {
+        return res.json({
+          success: false,
+          message: connectionResult.message,
+          needsPermission: connectionResult.message.includes('not found') || connectionResult.message.includes('no access')
+        });
+      }
+      
+      // Then ensure proper sheet structure
+      const structureResult = await service.ensureSheetStructure();
+      
+      res.json({
+        success: structureResult.success,
+        message: `${connectionResult.message} | ${structureResult.message}`,
+        spreadsheetUrl: `https://docs.google.com/spreadsheets/d/${process.env.GOOGLE_SHEETS_ID}/edit`
+      });
+    } catch (error) {
+      console.error("Error setting up Google Sheets:", error);
       res.status(500).json({ 
         success: false,
         message: error instanceof Error ? error.message : 'Unknown error'
@@ -591,6 +645,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       const result = await service.testConnection();
+      if (result.success) {
+        // Also check/create sheet structure
+        const structureResult = await service.ensureSheetStructure();
+        if (!structureResult.success) {
+          return res.json({
+            success: false,
+            message: `Connection successful but ${structureResult.message}`
+          });
+        }
+        result.message += ` | ${structureResult.message}`;
+      }
       res.json(result);
     } catch (error) {
       console.error("Error testing Google Sheets connection:", error);
