@@ -587,6 +587,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test Google Sheets connection without authentication (for debugging)
+  app.get('/api/google-sheets/test-connection', async (req, res) => {
+    try {
+      const { GoogleSheetsService } = await import('./googleSheetsService');
+      
+      if (!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || !process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY || !process.env.GOOGLE_SHEETS_ID) {
+        return res.json({ 
+          success: false,
+          message: "Google Sheets credentials not configured in environment variables",
+          hasEmail: !!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+          hasKey: !!process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY,
+          hasSheetId: !!process.env.GOOGLE_SHEETS_ID
+        });
+      }
+
+      const service = new GoogleSheetsService({
+        spreadsheetId: process.env.GOOGLE_SHEETS_ID,
+        contactsSheetName: 'Contacts',
+        leadsSheetName: 'Leads'
+      });
+      
+      const connectionResult = await service.testConnection();
+      res.json({
+        success: connectionResult.success,
+        message: connectionResult.message,
+        spreadsheetId: process.env.GOOGLE_SHEETS_ID,
+        serviceAccountEmail: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL
+      });
+    } catch (error) {
+      console.error("Error testing Google Sheets connection:", error);
+      res.json({ 
+        success: false,
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // Create or setup Google Sheet endpoint
   app.post('/api/google-sheets/setup', isAuthenticated, async (req, res) => {
     try {
