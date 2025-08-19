@@ -335,4 +335,93 @@ export class GoogleSheetsService {
       };
     }
   }
+
+  // Create or verify Google Sheet structure
+  async ensureSheetStructure(): Promise<{ success: boolean; message: string }> {
+    try {
+      // First try to get the spreadsheet
+      let spreadsheet;
+      try {
+        spreadsheet = await this.sheets.spreadsheets.get({
+          spreadsheetId: this.config.spreadsheetId,
+        });
+      } catch (error) {
+        return {
+          success: false,
+          message: `Spreadsheet not found or no access. Please check: 1) The spreadsheet ID is correct, 2) The service account (${process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL}) has been given Editor access to the spreadsheet`
+        };
+      }
+
+      const sheets = spreadsheet.data.sheets || [];
+      const sheetNames = sheets.map((sheet: any) => sheet.properties?.title);
+
+      // Check if required sheets exist
+      const contactsSheetExists = sheetNames.includes(this.config.contactsSheetName);
+      const leadsSheetExists = sheetNames.includes(this.config.leadsSheetName);
+
+      // Create missing sheets
+      const requests = [];
+      
+      if (!contactsSheetExists) {
+        requests.push({
+          addSheet: {
+            properties: {
+              title: this.config.contactsSheetName
+            }
+          }
+        });
+      }
+
+      if (!leadsSheetExists) {
+        requests.push({
+          addSheet: {
+            properties: {
+              title: this.config.leadsSheetName
+            }
+          }
+        });
+      }
+
+      if (requests.length > 0) {
+        await this.sheets.spreadsheets.batchUpdate({
+          spreadsheetId: this.config.spreadsheetId,
+          requestBody: { requests }
+        });
+      }
+
+      // Set up headers for contacts sheet
+      if (!contactsSheetExists) {
+        await this.sheets.spreadsheets.values.update({
+          spreadsheetId: this.config.spreadsheetId,
+          range: `${this.config.contactsSheetName}!A1:G1`,
+          valueInputOption: 'USER_ENTERED',
+          requestBody: {
+            values: [['Name', 'Email', 'Phone', 'Type', 'Status', 'Address', 'Notes']]
+          },
+        });
+      }
+
+      // Set up headers for leads sheet
+      if (!leadsSheetExists) {
+        await this.sheets.spreadsheets.values.update({
+          spreadsheetId: this.config.spreadsheetId,
+          range: `${this.config.leadsSheetName}!A1:H1`,
+          valueInputOption: 'USER_ENTERED',
+          requestBody: {
+            values: [['Property Address', 'Contact Name', 'Contact Email', 'Contact Phone', 'Stage', 'Priority', 'Notes', 'ID']]
+          },
+        });
+      }
+
+      return {
+        success: true,
+        message: `Sheet structure verified. Contacts sheet: ${contactsSheetExists ? 'exists' : 'created'}, Leads sheet: ${leadsSheetExists ? 'exists' : 'created'}`
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: `Failed to ensure sheet structure: ${error instanceof Error ? error.message : 'Unknown error'}`
+      };
+    }
+  }
 }
