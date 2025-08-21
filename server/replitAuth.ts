@@ -18,6 +18,7 @@ const getOidcConfig = memoize(
     return await client.discovery(
       new URL(process.env.ISSUER_URL ?? "https://replit.com/oidc"),
       process.env.REPL_ID!
+
     );
   },
   { maxAge: 3600 * 1000 }
@@ -37,11 +38,12 @@ export function getSession() {
     store: sessionStore,
     resave: false,
     saveUninitialized: false,
-    cookie: {
-      httpOnly: true,
-      secure: true,
-      maxAge: sessionTtl,
-    },
+     cookie: { secure: false },
+    // cookie: {
+    //   httpOnly: true,
+    //   secure: true,
+    //   maxAge: sessionTtl,
+    // },
   });
 }
 
