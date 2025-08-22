@@ -2,7 +2,7 @@
 
 
 import express, { type Request, Response, NextFunction } from "express";
-
+import expressEndPoint from "express-list-endpoints"
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
@@ -60,6 +60,9 @@ app.use((req, res, next) => {
   } else {
     serveStatic(app);
   }
+
+  console.log(expressEndPoint(app))
+
 
   // ALWAYS serve the app on the port specified in the environment variable PORT
   // Other ports are firewalled. Default to 5000 if not specified.
