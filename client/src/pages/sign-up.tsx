@@ -26,6 +26,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { handleSocialLogin } from "@/utils/socialLogin";
 import { useRouter } from "@/hooks/use-router";
 import { useTheme } from "@/components/ThemeProvider";
+import Agreement from "@/components/Agreement";
 
 // ✅ Zod schema for validation
 const signupSchema = z.object({
@@ -226,9 +227,7 @@ export default function Signup() {
 
         {/* Footer */}
         <div className="text-center">
-          <p className="text-xs text-muted-foreground">
-            By signing up, you agree to our terms of service and privacy policy.
-          </p>
+          <Agreement type="signing up" />
         </div>
       </div>
     </div>

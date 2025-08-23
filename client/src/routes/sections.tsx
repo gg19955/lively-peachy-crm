@@ -11,6 +11,8 @@ export const GoogleSheetsPage = lazy(() => import("../pages/google-sheets"));
 export const LeadsPage = lazy(() => import("../pages/leads"));
 export const LoginPage = lazy(() => import("../pages/Login"));
 export const SignUpPage = lazy(() => import("../pages/sign-up"));
+export const TosPage = lazy(() => import("../pages/term-of-service"));
+export const PrivacyPolicyPage = lazy(() => import("../pages/privacy-policy"));
 export const NotFoundPage = lazy(() => import("../pages/not-found"));
 import { ProtectedRoute } from "@/components/auth/protected-route";
 import { PublicRoute } from "@/components/auth/public-route";
@@ -51,15 +53,15 @@ export const routesSection: RouteObject[] = [
     ),
   },
 
-  // {
-  //   path: "tos",
-  //   element: <TermsOfServicePage />,
-  // },
+  {
+    path: "terms-of-service",
+    element: <TosPage />,
+  },
 
-  // {
-  //   path: "privacy-policy",
-  //   element: <PrivacyPolicyPage />,
-  // },
+  {
+    path: "privacy-policy",
+    element: <PrivacyPolicyPage />,
+  },
   {
     path: "404",
     element: <NotFoundPage />,

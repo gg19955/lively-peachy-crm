@@ -25,6 +25,7 @@ import {
 import { useRouter } from "@/hooks/use-router";
 import { apiRequest } from "@/lib/queryClient";
 import { handleSocialLogin } from "@/utils/socialLogin";
+import Agreement from "@/components/Agreement";
 
 // ✅ Zod schema for validation
 const loginSchema = z.object({
@@ -182,11 +183,7 @@ export default function Login() {
         </Card>
 
         {/* Footer with terms */}
-        <div className="text-center mt-4 text-xs text-muted-foreground">
-          <p>
-            By signing in, you agree to our terms of service and privacy policy.
-          </p>
-        </div>
+        <Agreement type={"signing in"} />
       </div>
     </div>
   );
