@@ -974,17 +974,16 @@ export type Database = {
       user: {
         Row: {
           access_permissions: string | null
+          app_user_id: string
           avatar_color: string | null
           company: string | null
           created_at: string | null
           email: string
           first_name: string | null
           goal_message: string | null
-          google_id: string | null
           id: number
           last_name: string | null
           name: string
-          password_hash: string | null
           preferred_logo: string | null
           profile_completed: boolean | null
           profile_picture: string | null
@@ -992,17 +991,16 @@ export type Database = {
         }
         Insert: {
           access_permissions?: string | null
+          app_user_id: string
           avatar_color?: string | null
           company?: string | null
           created_at?: string | null
           email: string
           first_name?: string | null
           goal_message?: string | null
-          google_id?: string | null
           id?: number
           last_name?: string | null
           name: string
-          password_hash?: string | null
           preferred_logo?: string | null
           profile_completed?: boolean | null
           profile_picture?: string | null
@@ -1010,17 +1008,16 @@ export type Database = {
         }
         Update: {
           access_permissions?: string | null
+          app_user_id?: string
           avatar_color?: string | null
           company?: string | null
           created_at?: string | null
           email?: string
           first_name?: string | null
           goal_message?: string | null
-          google_id?: string | null
           id?: number
           last_name?: string | null
           name?: string
-          password_hash?: string | null
           preferred_logo?: string | null
           profile_completed?: boolean | null
           profile_picture?: string | null

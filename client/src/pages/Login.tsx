@@ -1,7 +1,14 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { FaGoogle } from "react-icons/fa";
 import { Building2 } from "lucide-react";
+import { handleSocialLogin } from "@/utils/socialLogin";
 
 export default function Login() {
   return (
@@ -16,7 +23,7 @@ export default function Login() {
             Sign in to manage your properties and contacts
           </p>
         </div>
-        
+
         <Card>
           <CardHeader>
             <CardTitle>Choose your sign-in method</CardTitle>
@@ -26,14 +33,14 @@ export default function Login() {
           </CardHeader>
           <CardContent className="space-y-4">
             <Button
-              onClick={() => window.location.href = '/api/auth/google'}
+              onClick={() => handleSocialLogin("google")}
               className="w-full flex items-center justify-center space-x-2 bg-white text-gray-900 border border-gray-300 hover:bg-gray-50"
               data-testid="button-google-login"
             >
               <FaGoogle className="w-5 h-5 text-red-500" />
               <span>Continue with Google</span>
             </Button>
-            
+
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t border-gray-300" />
@@ -42,9 +49,9 @@ export default function Login() {
                 <span className="px-2 bg-white text-gray-500">or</span>
               </div>
             </div>
-            
+
             <Button
-              onClick={() => window.location.href = '/api/login'}
+              onClick={() => (window.location.href = "/api/login")}
               className="w-full"
               data-testid="button-replit-login"
             >
@@ -52,7 +59,7 @@ export default function Login() {
             </Button>
           </CardContent>
         </Card>
-        
+
         <div className="text-center">
           <p className="text-xs text-gray-500">
             By signing in, you agree to our terms of service and privacy policy
