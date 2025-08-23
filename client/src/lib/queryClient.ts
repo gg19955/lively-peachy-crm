@@ -1,5 +1,11 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
+let authToken: string | null = null;
+
+export const setAuthToken = (token: string | null) => {
+  authToken = token;
+};
+
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
     const text = (await res.text()) || res.statusText;
@@ -9,21 +15,21 @@ async function throwIfResNotOk(res: Response) {
 
 export async function apiRequest(
   urlOrOptions: string | { method?: string; url?: string; body?: unknown },
-  options?: { method?: string; body?: unknown }
+  options?: { method?: string; body?: unknown },
 ): Promise<any> {
   let url: string;
   let method: string;
   let body: unknown;
 
-  if (typeof urlOrOptions === 'string') {
+  if (typeof urlOrOptions === "string") {
     // Legacy format: apiRequest(url, options)
     url = urlOrOptions;
-    method = options?.method || 'GET';
+    method = options?.method || "GET";
     body = options?.body;
   } else {
     // New format: apiRequest({ url, method, body })
-    url = urlOrOptions.url || '';
-    method = urlOrOptions.method || 'GET';
+    url = urlOrOptions.url || "";
+    method = urlOrOptions.method || "GET";
     body = urlOrOptions.body;
   }
 
@@ -46,6 +52,9 @@ export const getQueryFn: <T>(options: {
   async ({ queryKey }) => {
     const res = await fetch(queryKey.join("/") as string, {
       credentials: "include",
+      headers: {
+        ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+      },
     });
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {

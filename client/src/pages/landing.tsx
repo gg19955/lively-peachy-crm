@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FaGoogle } from "react-icons/fa";
 import logoImage from "@assets/CAPITAL ICONS (13)_1754548082359.png";
+import { handleSocialLogin } from "@/utils/socialLogin";
 
 export default function Landing() {
   return (
@@ -21,7 +22,7 @@ export default function Landing() {
 
           <div className="space-y-3">
             <Button
-              onClick={() => window.location.href = '/api/auth/google'}
+              onClick={() =>  handleSocialLogin("google")}
               className="w-full flex items-center justify-center space-x-2 bg-white text-gray-900 border border-gray-300 hover:bg-gray-50"
               data-testid="button-google-login"
             >

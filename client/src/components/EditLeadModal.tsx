@@ -1,6 +1,11 @@
 import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,7 +40,11 @@ interface EditLeadModalProps {
 
 const editLeadSchema = insertLeadSchema.partial();
 
-export default function EditLeadModal({ lead, open, onOpenChange }: EditLeadModalProps) {
+export default function EditLeadModal({
+  lead,
+  open,
+  onOpenChange,
+}: EditLeadModalProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -225,9 +234,15 @@ export default function EditLeadModal({ lead, open, onOpenChange }: EditLeadModa
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="inquiry">Inquiry</SelectItem>
-                        <SelectItem value="meeting_booked">Meeting Booked</SelectItem>
-                        <SelectItem value="proposal_sent">Proposal Sent</SelectItem>
-                        <SelectItem value="contract_sent">Contract Sent</SelectItem>
+                        <SelectItem value="meeting_booked">
+                          Meeting Booked
+                        </SelectItem>
+                        <SelectItem value="proposal_sent">
+                          Proposal Sent
+                        </SelectItem>
+                        <SelectItem value="contract_sent">
+                          Contract Sent
+                        </SelectItem>
                         <SelectItem value="signed">Signed</SelectItem>
                         <SelectItem value="closed">Closed</SelectItem>
                       </SelectContent>
@@ -255,10 +270,18 @@ export default function EditLeadModal({ lead, open, onOpenChange }: EditLeadModa
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="immediately">Immediately</SelectItem>
-                        <SelectItem value="within_1_month">Within 1 Month</SelectItem>
-                        <SelectItem value="within_3_months">Within 3 Months</SelectItem>
-                        <SelectItem value="within_6_months">Within 6 Months</SelectItem>
-                        <SelectItem value="over_6_months">Over 6 Months</SelectItem>
+                        <SelectItem value="within_1_month">
+                          Within 1 Month
+                        </SelectItem>
+                        <SelectItem value="within_3_months">
+                          Within 3 Months
+                        </SelectItem>
+                        <SelectItem value="within_6_months">
+                          Within 6 Months
+                        </SelectItem>
+                        <SelectItem value="over_6_months">
+                          Over 6 Months
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -287,7 +310,9 @@ export default function EditLeadModal({ lead, open, onOpenChange }: EditLeadModa
                         <SelectItem value="villa">Villa</SelectItem>
                         <SelectItem value="apartment">Apartment</SelectItem>
                         <SelectItem value="townhouse">Townhouse</SelectItem>
-                        <SelectItem value="the_lively_collection">The Lively Collection</SelectItem>
+                        <SelectItem value="the_lively_collection">
+                          The Lively Collection
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
