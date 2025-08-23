@@ -1,4 +1,4 @@
-import { sql } from 'drizzle-orm';
+import { sql } from "drizzle-orm";
 import {
   index,
   jsonb,
@@ -26,7 +26,9 @@ export const sessions = pgTable(
 
 // User storage table for Replit Auth
 export const users = pgTable("users", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   email: varchar("email").unique(),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
@@ -37,7 +39,9 @@ export const users = pgTable("users", {
 
 // Contacts table
 export const contacts = pgTable("contacts", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   name: varchar("name").notNull(),
   email: varchar("email"),
   phone: varchar("phone"),
@@ -55,9 +59,15 @@ export const contacts = pgTable("contacts", {
 
 // Interactions/Timeline entries
 export const interactions = pgTable("interactions", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  contactId: varchar("contact_id").references(() => contacts.id).notNull(),
-  userId: varchar("user_id").references(() => users.id).notNull(),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  contactId: varchar("contact_id")
+    .references(() => contacts.id)
+    .notNull(),
+  userId: varchar("user_id")
+    .references(() => users.id)
+    .notNull(),
   type: varchar("type").notNull(), // phone, email, meeting, note, site_visit
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow(),
@@ -65,7 +75,9 @@ export const interactions = pgTable("interactions", {
 
 // Property leads
 export const leads = pgTable("leads", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   propertyAddress: varchar("property_address").notNull(),
   propertyType: varchar("property_type").default("house"), // house, villa, apartment, townhouse, the_lively_collection
   stage: varchar("stage").default("inquiry"), // inquiry, meeting_booked, proposal_sent, contract_sent, signed, closed
@@ -88,7 +100,9 @@ export const leads = pgTable("leads", {
 
 // Airtable sync log
 export const airtableSyncLog = pgTable("airtable_sync_log", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   entityType: varchar("entity_type").notNull(), // contacts, leads, interactions
   entityId: varchar("entity_id").notNull(),
   airtableId: varchar("airtable_id"),
@@ -151,7 +165,9 @@ export const insertLeadSchema = createInsertSchema(leads).omit({
   createdBy: true,
 });
 
-export const insertAirtableSyncLogSchema = createInsertSchema(airtableSyncLog).omit({
+export const insertAirtableSyncLogSchema = createInsertSchema(
+  airtableSyncLog,
+).omit({
   id: true,
   lastSyncAt: true,
 });

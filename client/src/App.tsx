@@ -15,16 +15,14 @@ function App({ children }: AppProps) {
   useScrollToTop();
 
   return (
-    <ThemeProvider defaultTheme="light" storageKey="property-crm-theme">
-      <UserSessionProvider>
-        <QueryClientProvider client={queryClient}>
-          <TooltipProvider>
-            <Toaster />
-            {children}
-          </TooltipProvider>
-        </QueryClientProvider>
-      </UserSessionProvider>
-    </ThemeProvider>
+    <UserSessionProvider>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          {children}
+        </TooltipProvider>
+      </QueryClientProvider>
+    </UserSessionProvider>
   );
 }
 

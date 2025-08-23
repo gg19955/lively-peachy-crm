@@ -10,6 +10,7 @@ export const DashboardPage = lazy(() => import("../pages/dashboard"));
 export const GoogleSheetsPage = lazy(() => import("../pages/google-sheets"));
 export const LeadsPage = lazy(() => import("../pages/leads"));
 export const LoginPage = lazy(() => import("../pages/Login"));
+export const SignUpPage = lazy(() => import("../pages/sign-up"));
 export const NotFoundPage = lazy(() => import("../pages/not-found"));
 import { ProtectedRoute } from "@/components/auth/protected-route";
 import { PublicRoute } from "@/components/auth/public-route";
@@ -38,6 +39,14 @@ export const routesSection: RouteObject[] = [
     element: (
       <PublicRoute>
         <LoginPage />
+      </PublicRoute>
+    ),
+  },
+  {
+    path: "sign-up",
+    element: (
+      <PublicRoute>
+        <SignUpPage />
       </PublicRoute>
     ),
   },

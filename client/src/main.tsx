@@ -7,6 +7,7 @@ import { Toaster } from "sonner";
 import App from "./App";
 import { routesSection } from "./routes/sections";
 import { ErrorBoundary } from "./components/ui/ErrorBoundary";
+import { ThemeProvider } from "./components/ThemeProvider";
 
 // ----------------------------------------------------------------------
 
@@ -33,6 +34,8 @@ const root = createRoot(document.getElementById("root")!);
 
 root.render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <ThemeProvider defaultTheme="light" storageKey="property-crm-theme">
+      <RouterProvider router={router} />
+    </ThemeProvider>
   </StrictMode>,
 );
