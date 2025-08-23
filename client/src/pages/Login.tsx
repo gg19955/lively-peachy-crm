@@ -17,7 +17,9 @@ export default function Login() {
         <div className="text-center">
           <Building2 className="mx-auto h-12 w-12 text-blue-600" />
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-            PropertyCRM
+            <p className="text-black dark:text-gray-200">
+              Professional Property Management
+            </p>
           </h2>
           <p className="mt-2 text-sm text-gray-600">
             Sign in to manage your properties and contacts
