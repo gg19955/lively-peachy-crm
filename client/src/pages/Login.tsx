@@ -26,6 +26,8 @@ import { useRouter } from "@/hooks/use-router";
 import { apiRequest } from "@/lib/queryClient";
 import { handleSocialLogin } from "@/utils/socialLogin";
 import Agreement from "@/components/Agreement";
+import supabase from "@/lib/supabase-client";
+import { toast } from "sonner";
 
 // ✅ Zod schema for validation
 const loginSchema = z.object({
@@ -46,15 +48,18 @@ export default function Login() {
     },
   });
 
-  const loginMutation = useMutation({
-    mutationFn: async (data: LoginForm) => {
-      return apiRequest("/api/auth/login", { method: "POST", body: data });
-    },
-    onSuccess: () => console.log("Login successful"),
-    onError: (error: Error) => console.error("Login failed:", error.message),
-  });
+  const onSubmit = async (data: LoginForm) => {
+    const { email, password } = data;
 
-  const onSubmit = (data: LoginForm) => loginMutation.mutate(data);
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error?.message) {
+      toast.error(error.message);
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background text-foreground py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
@@ -152,10 +157,10 @@ export default function Login() {
                 <div className="flex justify-end pt-4">
                   <Button
                     type="submit"
-                    disabled={loginMutation.isPending}
+                    disabled={form.formState.isSubmitting}
                     className="w-full"
                   >
-                    {loginMutation.isPending ? "Loading..." : "Sign in"}
+                    {form.formState.isSubmitting ? "Loading..." : "Sign in"}
                   </Button>
                 </div>
               </form>

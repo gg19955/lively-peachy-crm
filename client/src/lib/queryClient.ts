@@ -1,3 +1,4 @@
+import { env } from "@/config/config-global";
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
 let authToken: string | null = null;
@@ -23,12 +24,12 @@ export async function apiRequest(
 
   if (typeof urlOrOptions === "string") {
     // Legacy format: apiRequest(url, options)
-    url = urlOrOptions;
+    url = env.apiBaseUrl + urlOrOptions;
     method = options?.method || "GET";
     body = options?.body;
   } else {
     // New format: apiRequest({ url, method, body })
-    url = urlOrOptions.url || "";
+    url = env.apiBaseUrl + urlOrOptions.url;
     method = urlOrOptions.method || "GET";
     body = urlOrOptions.body;
   }

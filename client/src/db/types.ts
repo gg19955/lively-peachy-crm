@@ -987,7 +987,7 @@ export type Database = {
           preferred_logo: string | null
           profile_completed: boolean | null
           profile_picture: string | null
-          role: string | null
+          role: Database["public"]["Enums"]["role_enum"] | null
         }
         Insert: {
           access_permissions?: string | null
@@ -1004,7 +1004,7 @@ export type Database = {
           preferred_logo?: string | null
           profile_completed?: boolean | null
           profile_picture?: string | null
-          role?: string | null
+          role?: Database["public"]["Enums"]["role_enum"] | null
         }
         Update: {
           access_permissions?: string | null
@@ -1021,7 +1021,7 @@ export type Database = {
           preferred_logo?: string | null
           profile_completed?: boolean | null
           profile_picture?: string | null
-          role?: string | null
+          role?: Database["public"]["Enums"]["role_enum"] | null
         }
         Relationships: []
       }
@@ -1072,7 +1072,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      role_enum: "ADMIN" | "USER" | "TEAM"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1199,6 +1199,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      role_enum: ["ADMIN", "USER", "TEAM"],
+    },
   },
 } as const

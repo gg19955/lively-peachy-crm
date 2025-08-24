@@ -3,7 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { Building2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { FaGoogle } from "react-icons/fa";
-import { MdEmail, MdLock } from "react-icons/md";
+import { MdEmail, MdLock, MdPerson } from "react-icons/md";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -27,11 +27,11 @@ import { handleSocialLogin } from "@/utils/socialLogin";
 import { useRouter } from "@/hooks/use-router";
 import { useTheme } from "@/components/ThemeProvider";
 import Agreement from "@/components/Agreement";
+import { toast } from "sonner";
 
 // ✅ Zod schema for validation
 const signupSchema = z.object({
   fullName: z.string().min(2, "Full name is required"),
-  company: z.string().min(2, "Company name is required"),
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
@@ -46,7 +46,6 @@ export default function Signup() {
     resolver: zodResolver(signupSchema),
     defaultValues: {
       fullName: "",
-      company: "",
       email: "",
       password: "",
     },
@@ -54,10 +53,10 @@ export default function Signup() {
 
   const signupMutation = useMutation({
     mutationFn: async (data: SignupForm) => {
-      return apiRequest("/api/auth/signup", { method: "POST", body: data });
+      return apiRequest("/auth/signup", { method: "POST", body: data });
     },
     onSuccess: () => console.log("Signup successful"),
-    onError: (error: Error) => console.error("Signup failed:", error.message),
+    onError: (error: Error) => toast.error(error.message),
   });
 
   const onSubmit = (data: SignupForm) => signupMutation.mutate(data);
@@ -96,34 +95,16 @@ export default function Signup() {
                     <FormItem>
                       <FormLabel>Full Name</FormLabel>
                       <FormControl>
-                        <input
-                          className="w-full border rounded-md px-3 py-2 text-sm bg-input text-foreground placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary border-border transition-colors duration-300"
-                          type="text"
-                          placeholder="Enter your full name"
-                          {...field}
-                          value={field.value || ""}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Company Name */}
-                <FormField
-                  control={form.control}
-                  name="company"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Company Name</FormLabel>
-                      <FormControl>
-                        <input
-                          className="w-full border rounded-md px-3 py-2 text-sm bg-input text-foreground placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary border-border transition-colors duration-300"
-                          type="text"
-                          placeholder="Enter your company name"
-                          {...field}
-                          value={field.value || ""}
-                        />
+                        <div className="flex items-center border rounded-md px-2 border-border bg-input transition-colors duration-300">
+                          <MdPerson className="text-muted-foreground mr-2" />
+                          <input
+                            className="flex-1 border-0 focus:outline-none focus:ring-0 px-3 py-2 text-sm bg-input text-foreground placeholder-muted-foreground"
+                            type="fullName"
+                            placeholder="Enter full name"
+                            {...field}
+                            value={field.value || ""}
+                          />
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -182,10 +163,10 @@ export default function Signup() {
                 <div className="flex justify-end pt-4">
                   <Button
                     type="submit"
-                    disabled={signupMutation.isPending}
+                    disabled={form.formState.isSubmitting}
                     className="w-full"
                   >
-                    {signupMutation.isPending ? "Loading..." : "Sign up"}
+                    {form.formState.isSubmitting ? "Loading..." : "Sign up"}
                   </Button>
                 </div>
               </form>

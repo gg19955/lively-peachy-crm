@@ -1,4 +1,5 @@
 import TopAppBar from "@/components/TopAppBar";
+import { Link } from "react-router-dom";
 
 const TermsOfService = () => {
   return (
@@ -119,9 +120,9 @@ const TermsOfService = () => {
           <h2>8. Data Protection</h2>
           <p>
             Your use of the App is also governed by our{" "}
-            <a href="[Insert Link]">Privacy Policy</a>. By using the App, you
-            consent to the collection and use of your information as outlined in
-            the Privacy Policy.
+            <Link to="/privacy-policy">Privacy Policy</Link>. By using the App,
+            you consent to the collection and use of your information as
+            outlined in the Privacy Policy.
           </p>
 
           <h2>9. Limitation of Liability</h2>
